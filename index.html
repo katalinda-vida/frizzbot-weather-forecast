@@ -188,7 +188,7 @@
 
         <div class="card">
             <div class="location-input">
-                <input type="text" id="locationInput" placeholder="Enter city name (e.g., Sacramento, CA)" value="Sacramento, CA">
+                <input type="text" id="locationInput" placeholder="Try: Sacramento, Sacramento CA, or Sacramento California" value="Sacramento, CA">
                 <button class="btn" onclick="getWeatherByLocation()">Get Weather</button>
                 <button class="btn" onclick="getWeatherByGeolocation()">Use My Location</button>
             </div>
@@ -240,7 +240,7 @@
                 <li><strong>Better API:</strong> Using Open-Meteo instead of potentially outdated APIs</li>
                 <li><strong>Proper Unit Conversion:</strong> Ensuring temperatures are correctly converted</li>
                 <li><strong>Multiple Data Points:</strong> Showing temperature, feels-like, humidity, and dew point</li>
-                <li><strong>Precise Location:</strong> Better geocoding for accurate location matching</li>
+                <li><strong>Smart Location Search:</strong> Tries multiple formats if first attempt fails</li>
                 <li><strong>Real-time Updates:</strong> Fresh data with timestamps</li>
             </ul>
         </div>
@@ -360,6 +360,53 @@
             });
         }
 
+        // Function to try multiple geocoding approaches
+        async function tryMultipleGeocoding(locationInput) {
+            const searchVariations = [
+                locationInput, // Original input
+                locationInput.replace(',', ''), // Remove comma: "Sacramento CA"
+                locationInput.split(',')[0].trim(), // Just city name: "Sacramento"
+                locationInput.replace(', CA', ', California'), // Full state name
+                locationInput.replace(', CA', ', United States') // Add country
+            ];
+
+            for (let variation of searchVariations) {
+                try {
+                    console.log(`Trying geocoding for: "${variation}"`);
+                    const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(variation)}&count=5&language=en&format=json`;
+                    
+                    const geocodeResponse = await fetch(geocodeUrl, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (geocodeResponse.ok) {
+                        const geocodeData = await geocodeResponse.json();
+                        console.log(`Geocode data for "${variation}":`, geocodeData);
+                        
+                        if (geocodeData.results && geocodeData.results.length > 0) {
+                            // Prefer results in the US if original input had "CA"
+                            let bestMatch = geocodeData.results[0];
+                            if (locationInput.includes('CA') || locationInput.toLowerCase().includes('california')) {
+                                const usMatch = geocodeData.results.find(r => 
+                                    r.country_code === 'US' || 
+                                    r.country === 'United States' ||
+                                    (r.admin1 && r.admin1.toLowerCase().includes('california'))
+                                );
+                                if (usMatch) bestMatch = usMatch;
+                            }
+                            console.log(`Found location: ${bestMatch.name}, ${bestMatch.admin1 || ''} ${bestMatch.country || ''}`);
+                            return bestMatch;
+                        }
+                    }
+                } catch (error) {
+                    console.log(`Failed to geocode "${variation}":`, error.message);
+                    continue;
+                }
+            }
+            return null;
+        }
+
         // Function to get weather by location name
         async function getWeatherByLocation() {
             const locationInput = document.getElementById('locationInput').value.trim();
@@ -371,37 +418,18 @@
             showLoading();
 
             try {
-                // First, geocode the location
-                const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationInput)}&count=1&language=en&format=json`;
-                console.log('Geocoding URL:', geocodeUrl);
+                const location = await tryMultipleGeocoding(locationInput);
                 
-                const geocodeResponse = await fetch(geocodeUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                });
-
-                console.log('Geocode response status:', geocodeResponse.status);
-
-                if (!geocodeResponse.ok) {
-                    throw new Error(`Geocoding HTTP error! status: ${geocodeResponse.status}`);
-                }
-
-                const geocodeData = await geocodeResponse.json();
-                console.log('Geocode data:', geocodeData);
-
-                if (!geocodeData.results || geocodeData.results.length === 0) {
-                    showError(`Location "${locationInput}" not found. Please check the spelling or try a different format.`);
+                if (!location) {
+                    showError(`Location "${locationInput}" not found. Try formats like: "Sacramento", "Sacramento California", or "Sacramento, United States"`);
                     return;
                 }
 
-                const location = geocodeData.results[0];
                 console.log('Using location:', location);
                 await fetchWeatherData(location.latitude, location.longitude, location);
             } catch (error) {
                 console.error('Geocoding error:', error);
-                showError(`Failed to geocode location: ${error.message}. Check console for details.`);
+                showError(`Failed to find location: ${error.message}`);
             }
         }
 
