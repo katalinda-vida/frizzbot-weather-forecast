@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrizzBot Weather Forecast - Improved</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .location-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .location-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .location-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .weather-display {
+            display: none;
+        }
+
+        .weather-display.show {
+            display: block;
+        }
+
+        .current-weather {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .weather-stat {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .weather-stat h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .weather-stat .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .frizz-forecast {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .frizz-level {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .api-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .comparison {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .comparison h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌤️ FrizzBot Weather Forecast</h1>
+            <p>Get accurate weather data for better hair care decisions</p>
+        </div>
+
+        <div class="card">
+            <div class="location-input">
+                <input type="text" id="locationInput" placeholder="Enter city name (e.g., Sacramento, CA)" value="Sacramento, CA">
+                <button class="btn" onclick="getWeatherByLocation()">Get Weather</button>
+                <button class="btn" onclick="getWeatherByGeolocation()">Use My Location</button>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <p>🌦️ Fetching weather data...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+
+            <div id="weatherDisplay" class="weather-display">
+                <div class="current-weather">
+                    <div class="weather-stat">
+                        <h3>Temperature</h3>
+                        <div class="value" id="temperature">--°F</div>
+                    </div>
+                    <div class="weather-stat">
+                        <h3>Feels Like</h3>
+                        <div class="value" id="feelsLike">--°F</div>
+                    </div>
+                    <div class="weather-stat">
+                        <h3>Humidity</h3>
+                        <div class="value" id="humidity">--%</div>
+                    </div>
+                    <div class="weather-stat">
+                        <h3>Dew Point</h3>
+                        <div class="value" id="dewPoint">--°F</div>
+                    </div>
+                </div>
+
+                <div class="frizz-forecast">
+                    <h3>Frizz Forecast</h3>
+                    <div class="frizz-level" id="frizzLevel">Calculating...</div>
+                    <p id="frizzAdvice">Getting hair care recommendations...</p>
+                </div>
+
+                <div class="api-info">
+                    <h4>📊 Data Source</h4>
+                    <p>Using <strong>Open-Meteo API</strong> - Free, open-source weather data with high accuracy</p>
+                    <p id="locationInfo"></p>
+                    <p id="updateTime"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Why This Version is More Accurate</h3>
+            <ul style="margin-left: 20px; line-height: 1.6;">
+                <li><strong>Better API:</strong> Using Open-Meteo instead of potentially outdated APIs</li>
+                <li><strong>Proper Unit Conversion:</strong> Ensuring temperatures are correctly converted</li>
+                <li><strong>Multiple Data Points:</strong> Showing temperature, feels-like, humidity, and dew point</li>
+                <li><strong>Precise Location:</strong> Better geocoding for accurate location matching</li>
+                <li><strong>Real-time Updates:</strong> Fresh data with timestamps</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for weather data
+        let currentWeatherData = null;
+
+        // Function to calculate dew point from temperature and humidity
+        function calculateDewPoint(tempC, humidity) {
+            const a = 17.27;
+            const b = 237.7;
+            const alpha = ((a * tempC) / (b + tempC)) + Math.log(humidity / 100.0);
+            return (b * alpha) / (a - alpha);
+        }
+
+        // Function to assess frizz risk based on weather conditions
+        function assessFrizzRisk(temp, humidity, dewPoint) {
+            let frizzScore = 0;
+            let advice = "";
+            
+            // Humidity impact (most important factor)
+            if (humidity > 70) {
+                frizzScore += 3;
+            } else if (humidity > 50) {
+                frizzScore += 2;
+            } else if (humidity < 30) {
+                frizzScore += 2; // Very dry air also causes frizz
+            } else {
+                frizzScore += 1;
+            }
+            
+            // Dew point impact
+            const dewPointF = (dewPoint * 9/5) + 32;
+            if (dewPointF > 65) {
+                frizzScore += 2;
+            } else if (dewPointF > 55) {
+                frizzScore += 1;
+            }
+            
+            // Temperature impact
+            if (temp > 85) {
+                frizzScore += 1;
+            }
+            
+            // Generate advice based on score
+            if (frizzScore >= 5) {
+                advice = "High frizz risk! Use anti-humidity products, avoid touching hair, consider protective styles.";
+                return { level: "High Risk 🚨", advice, score: frizzScore };
+            } else if (frizzScore >= 3) {
+                advice = "Moderate frizz risk. Use lightweight moisture products and gentle styling.";
+                return { level: "Moderate Risk ⚠️", advice, score: frizzScore };
+            } else {
+                advice = "Low frizz risk! Great day for your natural hair texture.";
+                return { level: "Low Risk ✅", advice, score: frizzScore };
+            }
+        }
+
+        // Function to show loading state
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('weatherDisplay').classList.remove('show');
+        }
+
+        // Function to hide loading state
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Function to show error
+        function showError(message) {
+            hideLoading();
+            document.getElementById('error').innerHTML = `<strong>Error:</strong> ${message}`;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('weatherDisplay').classList.remove('show');
+        }
+
+        // Function to get weather by geolocation
+        async function getWeatherByGeolocation() {
+            if (!navigator.geolocation) {
+                showError('Geolocation is not supported by this browser.');
+                return;
+            }
+
+            showLoading();
+            
+            console.log('Requesting geolocation...');
+            
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                console.log('Geolocation success:', position.coords);
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                await fetchWeatherData(lat, lon);
+            }, (error) => {
+                console.error('Geolocation error:', error);
+                let errorMsg = 'Unable to retrieve location. ';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg += 'Location access denied by user.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg += 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg += 'Location request timed out.';
+                        break;
+                    default:
+                        errorMsg += 'An unknown error occurred.';
+                }
+                showError(errorMsg);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000 // 5 minutes
+            });
+        }
+
+        // Function to get weather by location name
+        async function getWeatherByLocation() {
+            const locationInput = document.getElementById('locationInput').value.trim();
+            if (!locationInput) {
+                showError('Please enter a location.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // First, geocode the location
+                const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationInput)}&count=1&language=en&format=json`;
+                console.log('Geocoding URL:', geocodeUrl);
+                
+                const geocodeResponse = await fetch(geocodeUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+
+                console.log('Geocode response status:', geocodeResponse.status);
+
+                if (!geocodeResponse.ok) {
+                    throw new Error(`Geocoding HTTP error! status: ${geocodeResponse.status}`);
+                }
+
+                const geocodeData = await geocodeResponse.json();
+                console.log('Geocode data:', geocodeData);
+
+                if (!geocodeData.results || geocodeData.results.length === 0) {
+                    showError(`Location "${locationInput}" not found. Please check the spelling or try a different format.`);
+                    return;
+                }
+
+                const location = geocodeData.results[0];
+                console.log('Using location:', location);
+                await fetchWeatherData(location.latitude, location.longitude, location);
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                showError(`Failed to geocode location: ${error.message}. Check console for details.`);
+            }
+        }
+
+        // Function to fetch weather data from Open-Meteo API
+        async function fetchWeatherData(lat, lon, locationInfo = null) {
+            try {
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature&hourly=temperature_2m,relative_humidity_2m&temperature_unit=fahrenheit&timezone=auto`;
+                
+                console.log('Fetching weather from:', weatherUrl);
+                
+                const weatherResponse = await fetch(weatherUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+
+                console.log('Weather response status:', weatherResponse.status);
+
+                if (!weatherResponse.ok) {
+                    throw new Error(`HTTP error! status: ${weatherResponse.status}`);
+                }
+
+                const weatherData = await weatherResponse.json();
+                console.log('Weather data:', weatherData);
+
+                if (weatherData.error) {
+                    throw new Error(weatherData.reason || 'Weather API error');
+                }
+
+                hideLoading();
+                displayWeatherData(weatherData, locationInfo);
+                
+            } catch (error) {
+                console.error('Weather fetch error:', error);
+                showError(`Failed to fetch weather data: ${error.message}. Check console for details.`);
+            }
+        }
+
+        // Function to display weather data
+        function displayWeatherData(data, locationInfo) {
+            currentWeatherData = data;
+            
+            const current = data.current;
+            const tempF = Math.round(current.temperature_2m);
+            const humidity = Math.round(current.relative_humidity_2m);
+            const feelsLikeF = Math.round(current.apparent_temperature);
+            
+            // Calculate dew point (convert F to C, calculate, convert back to F)
+            const tempC = (tempF - 32) * 5/9;
+            const dewPointC = calculateDewPoint(tempC, humidity);
+            const dewPointF = Math.round((dewPointC * 9/5) + 32);
+            
+            // Update display
+            document.getElementById('temperature').textContent = `${tempF}°F`;
+            document.getElementById('feelsLike').textContent = `${feelsLikeF}°F`;
+            document.getElementById('humidity').textContent = `${humidity}%`;
+            document.getElementById('dewPoint').textContent = `${dewPointF}°F`;
+            
+            // Calculate and display frizz forecast
+            const frizzAssessment = assessFrizzRisk(tempF, humidity, dewPointC);
+            document.getElementById('frizzLevel').textContent = frizzAssessment.level;
+            document.getElementById('frizzAdvice').textContent = frizzAssessment.advice;
+            
+            // Update location and time info
+            let locationText = '';
+            if (locationInfo) {
+                locationText = `Location: ${locationInfo.name}`;
+                if (locationInfo.admin1) locationText += `, ${locationInfo.admin1}`;
+                if (locationInfo.country) locationText += `, ${locationInfo.country}`;
+            } else {
+                locationText = `Coordinates: ${data.latitude}°, ${data.longitude}°`;
+            }
+            document.getElementById('locationInfo').textContent = locationText;
+            
+            const updateTime = new Date(current.time).toLocaleString();
+            document.getElementById('updateTime').textContent = `Last updated: ${updateTime}`;
+            
+            // Show the weather display
+            document.getElementById('weatherDisplay').classList.add('show');
+        }
+
+        // Allow Enter key to trigger weather lookup
+        document.getElementById('locationInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeatherByLocation();
+            }
+        });
+
+        // Auto-load weather for Sacramento on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, testing API connectivity...');
+            // Test API connectivity first
+            testAPIConnectivity();
+            // Then load Sacramento weather
+            setTimeout(() => {
+                getWeatherByLocation();
+            }, 1000);
+        });
+
+        // Function to test API connectivity
+        async function testAPIConnectivity() {
+            try {
+                console.log('Testing Open-Meteo API...');
+                const testUrl = 'https://api.open-meteo.com/v1/forecast?latitude=38.58&longitude=-121.49&current=temperature_2m&temperature_unit=fahrenheit';
+                const response = await fetch(testUrl);
+                console.log('API Test Response Status:', response.status);
+                if (response.ok) {
+                    console.log('✅ Open-Meteo API is accessible');
+                } else {
+                    console.log('❌ Open-Meteo API returned error:', response.status);
+                }
+            } catch (error) {
+                console.error('❌ API connectivity test failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>
