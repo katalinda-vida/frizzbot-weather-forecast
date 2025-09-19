@@ -12,7 +12,7 @@ An improved weather forecast app specifically designed for curly hair care decis
 
 ## 🚀 Live Demo
 
-Visit the app: [https://[your-username].github.io/frizzbot-weather-forecast](https://[your-username].github.io/frizzbot-weather-forecast)
+Visit the app: [https://katalinda-vida.github.io/frizzbot-weather-forecast/](https://katalinda-vida.github.io/frizzbot-weather-forecast/)
 
 ## 🛠️ How It Works
 
