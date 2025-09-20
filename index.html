@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frizzball - Smart Weather Forecast for Curly Hair</title>
+    <title>Frizzball - For Ho's On The Go</title>
     <style>
         * {
             margin: 0;
@@ -232,10 +232,10 @@
         }
 
         .hair-tips li {
-            padding: 12px 0;
+            padding: 15px 0;
             border-bottom: 1px solid rgba(255,255,255,0.4);
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .hair-tips li:last-child {
@@ -245,6 +245,11 @@
         .hair-tips li:before {
             content: "💡 ";
             margin-right: 10px;
+        }
+
+        .hair-tips li strong {
+            color: #1a365d;
+            font-weight: 700;
         }
 
         .api-info {
@@ -739,107 +744,111 @@
                 }
             },
 
-            // Generate personalized tips function
+            // Generate personalized tips function - Returns structured recommendations
             generateTips: function(weather, hairProfile) {
-                const tips = [];
                 const { curlType, porosity, texture, density } = hairProfile;
                 const { temperature, humidity, dewPoint } = weather;
                 
-                // Weather-based recommendations
+                const recommendations = {
+                    forecast: "",
+                    techniques: [],
+                    productTiming: []
+                };
+
+                // TODAY'S FORECAST FOR [CURL TYPE]
+                if (curlType) {
+                    let forecastMsg = "";
+                    
+                    if (humidity > 70) {
+                        const humidityEffect = this.weatherConditions.high_humidity.effects[curlType];
+                        if (humidityEffect) {
+                            if (curlType.startsWith('2')) { // Wavy hair
+                                forecastMsg = "High humidity may weigh down your waves but can enhance definition with right products.";
+                            } else if (curlType.startsWith('3')) { // Curly hair
+                                forecastMsg = "High humidity will enhance your curl definition and add natural volume.";
+                            } else if (curlType.startsWith('4')) { // Coily hair
+                                forecastMsg = "High humidity provides natural moisture - your coils will have extra bounce today.";
+                            }
+                        }
+                    } else if (humidity < 35) {
+                        if (porosity === 'fast') {
+                            forecastMsg = "Dry air will pull moisture from your hair quickly - expect faster drying but potential frizz.";
+                        } else if (porosity === 'slow') {
+                            forecastMsg = "Dry air may actually help with product absorption - good definition day ahead.";
+                        } else {
+                            forecastMsg = "Low humidity means your curls may lose moisture - plan for extra hydration.";
+                        }
+                    } else if (temperature > 85) {
+                        forecastMsg = "Hot weather will speed up drying time and may cause heat-related frizz.";
+                    } else {
+                        forecastMsg = "Great conditions for your natural curl pattern today!";
+                    }
+                    
+                    recommendations.forecast = forecastMsg;
+                }
+
+                // TECHNIQUE RECOMMENDATIONS
                 if (humidity > 70) {
-                    const humidityEffect = this.weatherConditions.high_humidity.effects[curlType];
-                    if (humidityEffect) {
-                        tips.push(`Today's forecast for ${curlType} curls: ${humidityEffect}`);
+                    if (['3A', '3B', '3C'].includes(curlType)) {
+                        recommendations.techniques.push("Perfect weather for gel scrunching method!");
+                        recommendations.techniques.push("Air dry day - humidity will enhance definition");
+                    } else if (['2A', '2B', '2C'].includes(curlType)) {
+                        recommendations.techniques.push("Try scrunching with lightweight gel");
+                        recommendations.techniques.push("Plopping for 15-20 minutes max today");
+                    } else if (['4A', '4B', '4C'].includes(curlType)) {
+                        recommendations.techniques.push("Great day for wash and go styles");
+                        recommendations.techniques.push("Shingling method will work beautifully");
                     }
-                    
-                    // Add technique recommendations
-                    if (curlType && ['3A', '3B', '3C'].includes(curlType)) {
-                        tips.push("High humidity day - perfect for gel scrunching method");
+                } else if (humidity < 40) {
+                    if (['2A', '2B'].includes(curlType)) {
+                        recommendations.techniques.push("Perfect weather for diffusing with volume!");
+                        recommendations.techniques.push("Sea salt spray application will work great");
+                    } else {
+                        recommendations.techniques.push("Consider diffusing to lock in moisture");
+                        recommendations.techniques.push("Praying hands method for even product distribution");
                     }
-                    tips.push("Apply products to soaking wet hair for best definition");
-                }
-                
-                if (humidity < 35) {
-                    tips.push("Very dry air - increase moisture with leave-in treatments");
-                    if (porosity === 'fast') {
-                        tips.push("High porosity + dry air = extra moisture needed. Deep condition tonight");
-                    }
-                    if (porosity === 'slow') {
-                        tips.push("Low porosity hair may actually absorb better in dry conditions");
-                    }
-                }
-
-                // Porosity-specific weather tips
-                const porosityGuide = this.porosityGuide[porosity];
-                if (porosityGuide && porosityGuide.weather_tips) {
-                    const weatherKey = humidity > 60 ? 'high_humidity' : 'low_humidity';
-                    const porosityTips = porosityGuide.weather_tips[weatherKey] || porosityGuide.weather_tips.any;
-                    
-                    if (porosityTips) {
-                        tips.push(...porosityTips.slice(0, 2)); // Add first 2 tips
-                    }
-                }
-
-                // Curl-type specific techniques
-                const curlGuide = this.curlTypeGuide[curlType];
-                if (curlGuide && curlGuide.techniques) {
-                    const mainTechnique = curlGuide.techniques[0];
-                    if (humidity > 65 && ['3A', '3B', '3C'].includes(curlType)) {
-                        tips.push(`Perfect weather for ${mainTechnique} technique`);
-                    } else if (humidity < 40 && ['2A', '2B'].includes(curlType)) {
-                        tips.push(`Low humidity is ideal for ${mainTechnique}`);
-                    }
-                }
-
-                // Texture-specific advice
-                if (texture === 'fine') {
-                    if (humidity > 65) {
-                        tips.push("Fine hair + high humidity: Use gel for hold without weight");
-                    }
-                    tips.push("Fine hair - avoid heavy creams, opt for lightweight products");
-                }
-                
-                if (texture === 'coarse') {
-                    tips.push("Coarse hair can handle heavier products - use butters and oils");
-                    if (humidity < 40) {
-                        tips.push("Dry air + coarse hair = need extra moisture");
-                    }
-                }
-
-                // Density-specific sectioning
-                if (density === 'high') {
-                    tips.push("High density hair - section in 4-6 parts when applying products");
-                    if (temperature > 85) {
-                        tips.push("Thick hair + heat = longer dry time. Plan extra time or use diffuser");
-                    }
-                }
-
-                // Temperature-specific advice
-                if (temperature > 90) {
-                    tips.push("Extreme heat - protect hair with UV spray and consider protective styles");
-                }
-
-                if (temperature < 60) {
-                    tips.push("Cool weather - diffusing may be necessary for comfortable drying");
-                }
-
-                // Dew point specific advice
-                if (dewPoint > 65) {
-                    tips.push(`High dew point - your ${curlType} curls will have extra volume today`);
-                } else if (dewPoint < 35) {
-                    tips.push("Low dew point - great conditions for diffusing without frizz");
-                }
-
-                // General curl care reminders
-                if (tips.length < 3) {
-                    tips.push(`Great weather conditions for your ${curlType} curls!`);
+                } else if (temperature > 85) {
+                    recommendations.techniques.push("Quick diffuse on low heat recommended");
+                    recommendations.techniques.push("Avoid touching hair while it dries in heat");
+                } else {
+                    const curlGuide = this.curlTypeGuide[curlType];
                     if (curlGuide && curlGuide.techniques) {
-                        tips.push(`Try the ${curlGuide.techniques[0]} technique today`);
+                        recommendations.techniques.push(`Great day for ${curlGuide.techniques[0]} technique`);
                     }
                 }
 
-                // Remove duplicates and limit to 6 most relevant tips
-                return [...new Set(tips)].slice(0, 6);
+                // PRODUCT TIMING
+                if (humidity > 65) {
+                    recommendations.productTiming.push("Apply products to soaking wet hair today");
+                    if (porosity === 'slow') {
+                        recommendations.productTiming.push("Use water-based products only - skip heavy creams");
+                    } else if (porosity === 'fast') {
+                        recommendations.productTiming.push("Layer leave-in, then seal with light oil");
+                    }
+                } else if (humidity < 35) {
+                    recommendations.productTiming.push("Apply extra leave-in conditioner before styling");
+                    if (porosity === 'fast') {
+                        recommendations.productTiming.push("Deep condition tonight - dry air will dehydrate hair");
+                    } else {
+                        recommendations.productTiming.push("Pre-heat products in palms for better absorption");
+                    }
+                } else {
+                    recommendations.productTiming.push("Standard application - damp to wet hair works well");
+                }
+
+                // Add texture-specific product timing
+                if (texture === 'fine') {
+                    recommendations.productTiming.push("Less is more - use light application to avoid weighing down");
+                } else if (texture === 'coarse') {
+                    recommendations.productTiming.push("Your hair can handle generous product application");
+                }
+
+                // Add density-specific advice
+                if (density === 'high') {
+                    recommendations.productTiming.push("Section hair in 4-6 parts for even distribution");
+                }
+
+                return recommendations;
             }
         };
 
@@ -1106,14 +1115,44 @@
                 dewPoint: dewPointF
             };
 
-            // Use the smart knowledge engine to generate tips
+            // Use the smart knowledge engine to generate structured tips
             const smartTips = FrizzballKnowledge.generateTips(weatherData, hairProfile);
 
-            // Display the intelligent tips
-            if (smartTips.length > 0) {
-                tipsEl.innerHTML = smartTips.map(tip => `<li>${tip}</li>`).join('');
+            // Build formatted HTML with bold headers
+            let tipsHTML = '';
+
+            // Today's Forecast
+            if (smartTips.forecast) {
+                tipsHTML += `<li><strong>Today's forecast for ${hairProfile.curlType} curls</strong>: "${smartTips.forecast}"</li>`;
+            }
+
+            // Technique Recommendations
+            if (smartTips.techniques.length > 0) {
+                const techniqueText = smartTips.techniques[0]; // Primary technique
+                tipsHTML += `<li><strong>Technique recommendations</strong>: "${techniqueText}"</li>`;
+                
+                // Add secondary technique if available
+                if (smartTips.techniques.length > 1) {
+                    tipsHTML += `<li><strong>Secondary technique</strong>: "${smartTips.techniques[1]}"</li>`;
+                }
+            }
+
+            // Product Timing
+            if (smartTips.productTiming.length > 0) {
+                const primaryTiming = smartTips.productTiming[0];
+                tipsHTML += `<li><strong>Product timing</strong>: "${primaryTiming}"</li>`;
+                
+                // Add additional product timing tips
+                smartTips.productTiming.slice(1, 3).forEach(tip => {
+                    tipsHTML += `<li><strong>Product tip</strong>: "${tip}"</li>`;
+                });
+            }
+
+            // Display the formatted tips
+            if (tipsHTML) {
+                tipsEl.innerHTML = tipsHTML;
             } else {
-                tipsEl.innerHTML = `<li>Great weather conditions for your ${hairProfile.curlType} curls - enjoy your natural texture!</li>`;
+                tipsEl.innerHTML = `<li><strong>Today's forecast</strong>: "Great weather conditions for your ${hairProfile.curlType} curls - enjoy your natural texture!"</li>`;
             }
         }
 
