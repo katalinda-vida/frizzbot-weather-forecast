@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frizzball - For Ho's On The Go</title>
+    <title>Frizzball - Smart Weather Forecast for Curly Hair</title>
     <style>
         * {
             margin: 0;
@@ -439,7 +439,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>Frizzball</h1>
-                <p>For Ho's On The Go</p>
+                <p>Smart weather forecasts tailored for your unique curls</p>
             </div>
             <div class="hair-avatar" onclick="openProfileModal()">
                 <div class="avatar-icon" id="avatarIcon">👤</div>
@@ -854,13 +854,23 @@
 
         // Load saved hair profile on page load
         function loadHairProfile() {
-            const saved = localStorage.getItem('frizzball-hair-profile');
-            if (saved) {
-                hairProfile = JSON.parse(saved);
-                updateAvatarDisplay();
-                updateQuizSelections();
-                checkProfileCompletion();
-            } else {
+            try {
+                const saved = localStorage.getItem('frizzball-hair-profile');
+                console.log('Loading saved profile from localStorage:', saved);
+                
+                if (saved) {
+                    hairProfile = JSON.parse(saved);
+                    console.log('Parsed hair profile:', hairProfile);
+                    
+                    updateAvatarDisplay();
+                    updateQuizSelections();
+                    checkProfileCompletion();
+                } else {
+                    console.log('No saved profile found, showing incomplete profile banner');
+                    showIncompleteProfile();
+                }
+            } catch (error) {
+                console.error('Error loading hair profile:', error);
                 showIncompleteProfile();
             }
         }
@@ -892,6 +902,8 @@
             const typeEl = document.getElementById('avatarType');
             const iconEl = document.getElementById('avatarIcon');
             
+            console.log('Updating avatar with profile:', hairProfile);
+            
             if (hairProfile.curlType) {
                 // Set curl emoji based on type - actual hair representations
                 const curlEmojis = {
@@ -906,7 +918,8 @@
                     '4C': '🔘' // Tight dense coils
                 };
                 
-                iconEl.textContent = curlEmojis[hairProfile.curlType] || '🌊';
+                const selectedEmoji = curlEmojis[hairProfile.curlType] || '🌊';
+                iconEl.textContent = selectedEmoji;
                 nameEl.textContent = `${hairProfile.curlType} Curls`;
                 
                 const porosityText = {
@@ -916,17 +929,29 @@
                     'mixed': 'Mixed Porosity'
                 };
                 
-                typeEl.textContent = `${porosityText[hairProfile.porosity] || ''} • ${hairProfile.texture || ''} texture`;
+                const porosityDisplay = porosityText[hairProfile.porosity] || hairProfile.porosity;
+                const textureDisplay = hairProfile.texture ? hairProfile.texture.charAt(0).toUpperCase() + hairProfile.texture.slice(1) : '';
+                
+                typeEl.textContent = `${porosityDisplay} • ${textureDisplay} texture`;
+                
+                console.log('Avatar updated - Icon:', selectedEmoji, 'Name:', nameEl.textContent, 'Type:', typeEl.textContent);
             } else {
                 iconEl.textContent = '👤';
                 nameEl.textContent = 'Set Hair Profile';
                 typeEl.textContent = 'Click to configure';
+                console.log('Avatar reset to default');
             }
         }
 
         function openProfileModal() {
+            console.log('Opening profile modal with current profile:', hairProfile);
             document.getElementById('profileModal').classList.add('show');
             document.body.style.overflow = 'hidden';
+            
+            // Refresh quiz selections when modal opens
+            setTimeout(() => {
+                updateQuizSelections();
+            }, 100);
         }
 
         function closeProfileModal() {
@@ -948,29 +973,62 @@
         });
 
         function updateQuizSelections() {
+            console.log('Updating quiz selections with profile:', hairProfile);
+            
             // Clear all selections first
-            document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
             
             // Update UI to show saved selections
             if (hairProfile.curlType) {
                 const curlEl = document.querySelector(`#curlType [data-value="${hairProfile.curlType}"]`);
-                if (curlEl) curlEl.classList.add('selected');
+                if (curlEl) {
+                    curlEl.classList.add('selected');
+                    console.log('Selected curl type:', hairProfile.curlType);
+                } else {
+                    console.log('Could not find curl type element for:', hairProfile.curlType);
+                }
             }
+            
             if (hairProfile.porosity) {
                 const porosityEl = document.querySelector(`#dryTime [data-value="${hairProfile.porosity}"]`);
-                if (porosityEl) porosityEl.classList.add('selected');
+                if (porosityEl) {
+                    porosityEl.classList.add('selected');
+                    console.log('Selected porosity:', hairProfile.porosity);
+                } else {
+                    console.log('Could not find porosity element for:', hairProfile.porosity);
+                }
             }
+            
             if (hairProfile.chemicalTreatment) {
                 const chemicalEl = document.querySelector(`#chemicalTreatment [data-value="${hairProfile.chemicalTreatment}"]`);
-                if (chemicalEl) chemicalEl.classList.add('selected');
+                if (chemicalEl) {
+                    chemicalEl.classList.add('selected');
+                    console.log('Selected chemical treatment:', hairProfile.chemicalTreatment);
+                } else {
+                    console.log('Could not find chemical treatment element for:', hairProfile.chemicalTreatment);
+                }
             }
+            
             if (hairProfile.texture) {
                 const textureEl = document.querySelector(`#hairTexture [data-value="${hairProfile.texture}"]`);
-                if (textureEl) textureEl.classList.add('selected');
+                if (textureEl) {
+                    textureEl.classList.add('selected');
+                    console.log('Selected texture:', hairProfile.texture);
+                } else {
+                    console.log('Could not find texture element for:', hairProfile.texture);
+                }
             }
+            
             if (hairProfile.density) {
                 const densityEl = document.querySelector(`#hairDensity [data-value="${hairProfile.density}"]`);
-                if (densityEl) densityEl.classList.add('selected');
+                if (densityEl) {
+                    densityEl.classList.add('selected');
+                    console.log('Selected density:', hairProfile.density);
+                } else {
+                    console.log('Could not find density element for:', hairProfile.density);
+                }
             }
         }
 
@@ -981,6 +1039,14 @@
             const chemicalSelected = document.querySelector('#chemicalTreatment .quiz-option.selected');
             const textureSelected = document.querySelector('#hairTexture .quiz-option.selected');
             const densitySelected = document.querySelector('#hairDensity .quiz-option.selected');
+
+            console.log('Saving profile with selections:', {
+                curl: curlTypeSelected?.dataset.value,
+                dryTime: dryTimeSelected?.dataset.value,
+                chemical: chemicalSelected?.dataset.value,
+                texture: textureSelected?.dataset.value,
+                density: densitySelected?.dataset.value
+            });
 
             if (!curlTypeSelected || !dryTimeSelected || !chemicalSelected || !textureSelected || !densitySelected) {
                 alert('Please answer all questions to save your profile!');
@@ -996,6 +1062,7 @@
                 porosity = 'high';
             }
 
+            // Update global hair profile
             hairProfile = {
                 curlType: curlTypeSelected.dataset.value,
                 porosity: porosity,
@@ -1004,18 +1071,32 @@
                 chemicalTreatment: chemicalSelected.dataset.value
             };
 
-            localStorage.setItem('frizzball-hair-profile', JSON.stringify(hairProfile));
+            console.log('Updated hairProfile:', hairProfile);
+
+            // Save to localStorage
+            try {
+                localStorage.setItem('frizzball-hair-profile', JSON.stringify(hairProfile));
+                console.log('Profile saved to localStorage successfully');
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                alert('Error saving profile. Please try again.');
+                return;
+            }
+
+            // Update all UI elements
             updateAvatarDisplay();
             checkProfileCompletion();
             
             // Update hair tips if weather is displayed
             if (currentWeatherData) {
+                console.log('Updating hair tips with new profile');
                 updateHairTips();
             }
 
+            // Close modal
             closeProfileModal();
             
-            // Show success message
+            // Show success message after a brief delay
             setTimeout(() => {
                 alert('Hair profile saved! Your weather tips are now personalized to your curl type and porosity.');
             }, 300);
