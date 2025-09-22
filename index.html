@@ -416,6 +416,80 @@
                 margin: 10px;
                 padding: 25px;
             }
+
+            /* Mobile forecast styles */
+            .tabs {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .tab {
+                padding: 15px 20px;
+                border-radius: 12px;
+            }
+
+            .forecast-navigation {
+                gap: 4px;
+                padding: 6px;
+            }
+
+            .forecast-day-tab {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .forecast-card {
+                padding: 18px;
+                border-radius: 12px;
+            }
+
+            .weather-overview {
+                padding: 25px 20px;
+            }
+
+            .weather-main {
+                gap: 15px;
+            }
+
+            .weather-icon {
+                font-size: 2.8em;
+            }
+
+            .temp-main {
+                font-size: 2.8em;
+            }
+
+            .weather-desc {
+                font-size: 1em;
+            }
+
+            .weather-date {
+                top: 15px;
+                right: 20px;
+                font-size: 1em;
+            }
+
+            .card-header h3 {
+                font-size: 1.1em;
+            }
+
+            .risk-badge {
+                padding: 5px 10px;
+                font-size: 0.8em;
+            }
+
+            .humidity-values {
+                font-size: 1em;
+            }
+
+            .tips-content {
+                max-height: 300px;
+            }
+
+            .tips-content li {
+                font-size: 13px;
+                padding: 8px 0;
+            }
         }
 
         .incomplete-profile {
@@ -526,12 +600,9 @@
             </div>
 
             <div class="quiz-question">
-                <h4>What's your curl pattern?</h4>
+                                        <h4>What's your hair pattern?</h4>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">All hair types get frizzy - straight to coily, we've got you covered!</p>
                 <div class="quiz-options" id="curlType">
-                    <div class="quiz-option" data-value="1A">1A - Pin straight, very fine hair</div>
-                    <div class="quiz-option" data-value="1B">1B - Straight with slight body</div>
-                    <div class="quiz-option" data-value="1C">1C - Straight with some waves when styled</div>
-                    <div class="quiz-option" data-value="2A">2A - Loose, barely-there waves</div>
                     <div class="quiz-option" data-value="2A">2A - Loose, barely-there waves</div>
                     <div class="quiz-option" data-value="2B">2B - More defined waves with some frizz</div>
                     <div class="quiz-option" data-value="2C">2C - Strong waves with definite curls</div>
@@ -589,6 +660,8 @@
     <script>
         // Global variables
         let currentWeatherData = null;
+        let forecastWeatherData = null;
+        let currentForecastDay = 0;
         let hairProfile = {
             curlType: null,
             porosity: null,
@@ -932,6 +1005,70 @@
             }
         }
 
+        // Initialize tips card as collapsed
+        function initializeForecastUI() {
+            const tipsContent = document.getElementById('forecastTipsContent');
+            const expandBtn = document.getElementById('tipsExpandBtn');
+            
+            if (tipsContent && expandBtn) {
+                tipsContent.classList.add('collapsed');
+                expandBtn.textContent = '▼';
+            }
+
+            // Update day labels based on current date
+            updateDayLabels();
+
+            // Set up midnight auto-advance
+            setupMidnightUpdate();
+        }
+
+        // Update day labels (Today, Tomorrow, Day 3)
+        function updateDayLabels() {
+            const now = new Date();
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            
+            document.getElementById('day0Tab').innerHTML = 'Today<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
+                now.toLocaleDateString('en-US', options) + '</small>';
+            
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('day1Tab').innerHTML = 'Tomorrow<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
+                tomorrow.toLocaleDateString('en-US', options) + '</small>';
+            
+            const dayAfter = new Date(now);
+            dayAfter.setDate(dayAfter.getDate() + 2);
+            document.getElementById('day2Tab').innerHTML = dayAfter.toLocaleDateString('en-US', { weekday: 'long' }) + 
+                '<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
+                dayAfter.toLocaleDateString('en-US', options) + '</small>';
+        }
+
+        // Setup midnight auto-advance
+        function setupMidnightUpdate() {
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            
+            const msUntilMidnight = tomorrow.getTime() - now.getTime();
+            
+            setTimeout(() => {
+                // Update day labels
+                updateDayLabels();
+                
+                // Clear forecast data to force refresh
+                forecastWeatherData = null;
+                
+                // If on weekly tab, refresh forecast
+                const weeklyTab = document.getElementById('weekly-tab');
+                if (weeklyTab && weeklyTab.classList.contains('active')) {
+                    fetchForecastData();
+                }
+                
+                // Set up for next midnight
+                setupMidnightUpdate();
+            }, msUntilMidnight);
+        }
+
         function showIncompleteProfile() {
             document.getElementById('incompleteProfile').style.display = 'block';
         }
@@ -1168,6 +1305,11 @@
             if (currentWeatherData) {
                 console.log('Updating hair tips with new profile');
                 updateHairTips();
+                
+                // Also update forecast if it's displayed
+                if (forecastWeatherData) {
+                    displayForecastDay(currentForecastDay);
+                }
             }
 
             // Close modal
@@ -1518,6 +1660,15 @@
             
             updateHairTips();
             document.getElementById('weatherDisplay').classList.add('show');
+
+            // Clear any existing forecast data since location might have changed
+            forecastWeatherData = null;
+            
+            // If user is currently on the weekly tab, fetch forecast
+            const weeklyTab = document.getElementById('weekly-tab');
+            if (weeklyTab && weeklyTab.classList.contains('active')) {
+                fetchForecastData();
+            }
         }
 
         document.getElementById('locationInput').addEventListener('keypress', function(e) {
@@ -1535,6 +1686,8 @@
 
         window.addEventListener('load', () => {
             console.log('Page loaded, testing API connectivity...');
+            loadHairProfile();
+            initializeForecastUI();
             testAPIConnectivity();
             setTimeout(() => {
                 getWeatherByLocation();
