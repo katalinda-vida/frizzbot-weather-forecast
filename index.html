@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frizzball - Smart Weather Forecast for Curly Hair</title>
+    <title>Frizzball - Smart Weather Forecast for All Hair Types</title>
     <style>
         * {
             margin: 0;
@@ -30,30 +30,28 @@
             align-items: center;
             color: white;
             margin-bottom: 30px;
-        }
-
-        .header-left {
-            text-align: left;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .header-left h1 {
-            font-size: 3em;
+            font-size: 2.8em;
             margin-bottom: 5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header-left p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             opacity: 0.9;
         }
 
         .hair-avatar {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             background: rgba(255, 255, 255, 0.15);
-            padding: 15px 20px;
-            border-radius: 50px;
+            padding: 12px 18px;
+            border-radius: 40px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             cursor: pointer;
@@ -66,625 +64,524 @@
         }
 
         .avatar-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-        }
-
-        .avatar-text {
-            text-align: left;
+            font-size: 20px;
         }
 
         .avatar-text .name {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 3px;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .avatar-text .type {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.8;
+        }
+
+        .main-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 25px;
+            padding: 5px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .day-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .day-button {
+            flex: 1;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .day-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        .weather-cards {
+            display: grid;
+            gap: 15px;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .weather-card {
+            text-align: center;
+            padding: 25px;
+        }
+
+        .weather-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .temperature {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .description {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .feels-like {
+            font-size: 1em;
+            color: #888;
+        }
+
+        .frizz-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .frizz-risk {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            border-radius: 25px;
+        }
+
+        .risk-low {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .risk-moderate {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .risk-high {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .humidity-card .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .tips-card {
+            position: relative;
+        }
+
+        .tips-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .expand-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tips-content {
+            display: none;
+        }
+
+        .tips-content.expanded {
+            display: block;
+            animation: expandDown 0.3s ease;
+        }
+
+        @keyframes expandDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tip-section {
+            margin-bottom: 15px;
+        }
+
+        .tip-section h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .tip-section p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 5px;
         }
 
         .location-input {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         .location-input input {
             flex: 1;
-            padding: 18px 25px;
-            border: 2px solid #e0e6ed;
-            border-radius: 15px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 16px;
-            min-width: 250px;
-            transition: all 0.3s ease;
         }
 
         .location-input input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .btn {
-            padding: 18px 30px;
+        .location-input button {
+            padding: 12px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-        }
-
-        .weather-display {
-            display: none;
-        }
-
-        .weather-display.show {
-            display: block;
-        }
-
-        .current-weather {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .weather-stat {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 18px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
         }
 
-        .weather-stat:hover {
-            transform: translateY(-5px);
+        .location-input button:hover {
+            transform: translateY(-2px);
         }
 
-        .weather-stat h3 {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .weather-stat .value {
-            font-size: 2.4em;
-            font-weight: bold;
-        }
-
-        .frizz-forecast {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 18px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .frizz-level {
-            font-size: 2em;
-            font-weight: bold;
-            margin: 18px 0;
-        }
-
-        .hair-tips {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #2c3e50;
-            padding: 30px;
-            border-radius: 18px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .hair-tips h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.4em;
-            text-align: center;
-        }
-
-        .hair-tips ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .hair-tips li {
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.4);
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        .hair-tips li:last-child {
-            border-bottom: none;
-        }
-
-        .hair-tips li:before {
-            content: "💡 ";
-            margin-right: 10px;
-        }
-
-        .hair-tips li strong {
-            color: #1a365d;
-            font-weight: 700;
-        }
-
-        .api-info {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 25px;
-            border-left: 5px solid #667eea;
-        }
-
-        .error {
-            background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.2em;
-        }
-
-        /* Profile Modal */
-        .modal {
+        .hair-profile-modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
             backdrop-filter: blur(5px);
         }
 
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
-            margin: 20px;
-            padding: 40px;
-            border-radius: 25px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 20px;
-        }
-
-        .modal-header h2 {
-            color: #2c3e50;
-            font-size: 1.8em;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 30px;
-            cursor: pointer;
-            color: #999;
-            padding: 5px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            color: #666;
-            background: #f0f0f0;
         }
 
         .quiz-question {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .quiz-question h4 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #333;
         }
 
         .quiz-options {
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
 
         .quiz-option {
-            padding: 15px 20px;
-            border: 2px solid #e0e6ed;
-            border-radius: 12px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: white;
-            font-size: 14px;
+            border: 2px solid transparent;
         }
 
         .quiz-option:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-            transform: translateX(5px);
+            background: #e8e8e8;
         }
 
         .quiz-option.selected {
-            border-color: #667eea;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            transform: translateX(5px);
+            border-color: #667eea;
         }
 
-        .profile-complete {
-            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 20px;
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
         }
 
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
-                gap: 20px;
                 text-align: center;
             }
 
             .header-left h1 {
-                font-size: 2.5em;
-            }
-
-            .hair-avatar {
-                padding: 12px 16px;
+                font-size: 2.2em;
             }
 
             .location-input {
                 flex-direction: column;
-                gap: 12px;
             }
-
-            .location-input input {
-                min-width: unset;
-            }
-
-            .current-weather {
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-            }
-
-            .modal-content {
-                margin: 10px;
-                padding: 25px;
-            }
-
-            /* Mobile forecast styles */
-            .tabs {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .tab {
-                padding: 15px 20px;
-                border-radius: 12px;
-            }
-
-            .forecast-navigation {
-                gap: 4px;
-                padding: 6px;
-            }
-
-            .forecast-day-tab {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
-
-            .forecast-card {
-                padding: 18px;
-                border-radius: 12px;
-            }
-
-            .weather-overview {
-                padding: 25px 20px;
-            }
-
-            .weather-main {
-                gap: 15px;
-            }
-
-            .weather-icon {
-                font-size: 2.8em;
-            }
-
-            .temp-main {
-                font-size: 2.8em;
-            }
-
-            .weather-desc {
-                font-size: 1em;
-            }
-
-            .weather-date {
-                top: 15px;
-                right: 20px;
-                font-size: 1em;
-            }
-
-            .card-header h3 {
-                font-size: 1.1em;
-            }
-
-            .risk-badge {
-                padding: 5px 10px;
-                font-size: 0.8em;
-            }
-
-            .humidity-values {
-                font-size: 1em;
-            }
-
-            .tips-content {
-                max-height: 300px;
-            }
-
-            .tips-content li {
-                font-size: 13px;
-                padding: 8px 0;
-            }
-        }
-
-        .incomplete-profile {
-            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .incomplete-profile:hover {
-            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header with Hair Avatar -->
         <div class="header">
             <div class="header-left">
                 <h1>Frizzball</h1>
-                <p>Smart weather forecasts for frizz-free hair - all types welcome!</p>
+                <p>Smart weather forecast for all hair types</p>
             </div>
-            <div class="hair-avatar" onclick="openProfileModal()">
-                <div class="avatar-icon" id="avatarIcon">👤</div>
+            <div class="hair-avatar" onclick="openHairProfile()">
+                <div class="avatar-icon">🌀</div>
                 <div class="avatar-text">
-                    <div class="name" id="avatarName">Set Hair Profile</div>
-                    <div class="type" id="avatarType">Click to configure</div>
+                    <div class="name">Your Hair</div>
+                    <div class="type" id="avatar-type">3B Curly</div>
                 </div>
             </div>
         </div>
 
-        <!-- Incomplete Profile Banner -->
-        <div id="incompleteProfile" class="incomplete-profile" onclick="openProfileModal()" style="display: none;">
-            <h3>🎯 Complete Your Hair Profile</h3>
-            <p>Get personalized weather tips based on your hair type, porosity, and texture - all hair types welcome!</p>
+        <!-- Location Input -->
+        <div class="location-input">
+            <input type="text" id="locationInput" placeholder="Enter city, state (e.g., Sacramento, CA)" />
+            <button onclick="getWeatherByLocation()">Get Weather</button>
+            <button onclick="getCurrentLocation()">Use My Location</button>
         </div>
 
-        <div class="card">
-            <div class="location-input">
-                <input type="text" id="locationInput" placeholder="Enter your city (e.g., Sacramento, CA)" value="Sacramento, CA">
-                <button class="btn" onclick="getWeatherByLocation()">Get Weather</button>
-                <button class="btn btn-secondary" onclick="getWeatherByGeolocation()">Use My Location</button>
+        <!-- Main Tabs -->
+        <div class="main-tabs">
+            <button class="tab-button active" onclick="switchTab('today')">Today's Forecast</button>
+            <button class="tab-button" onclick="switchTab('planning')">3-Day Planning</button>
+        </div>
+
+        <!-- Today's Tab -->
+        <div id="today-tab" class="tab-content active">
+            <div class="weather-cards">
+                <div class="card weather-card" id="weather-display">
+                    <div class="weather-icon">🌤️</div>
+                    <div class="temperature">--°F</div>
+                    <div class="description">Enter location for weather</div>
+                    <div class="feels-like">Feels like --°F</div>
+                </div>
+
+                <div class="card frizz-card" id="frizz-display">
+                    <div class="frizz-risk risk-low">🌿 Low Frizz Risk</div>
+                    <p>Perfect weather for your hair! Great day for air drying.</p>
+                </div>
+
+                <div class="card humidity-card">
+                    <h3>🌊 Humidity Insights</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value" id="humidity-val">--%</div>
+                            <div class="stat-label">Humidity</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="dewpoint-val">--°F</div>
+                            <div class="stat-label">Dew Point</div>
+                        </div>
+                    </div>
+                    <p id="humidity-explanation">Get weather data to see how humidity affects your hair!</p>
+                </div>
+
+                <div class="card tips-card">
+                    <div class="tips-header" onclick="toggleTips()">
+                        <h3>💡 Today's Hair Tips</h3>
+                        <button class="expand-button" id="expand-btn">▼</button>
+                    </div>
+                    <div class="tips-content" id="tips-content">
+                        <div class="tip-section">
+                            <h4>Recommended Techniques:</h4>
+                            <p>Perfect weather for the plopping method - wrap wet curls in a cotton t-shirt for 20 minutes!</p>
+                        </div>
+                        <div class="tip-section">
+                            <h4>Product Timing:</h4>
+                            <p>Apply leave-in conditioner to damp hair, then scrunch with gel for definition.</p>
+                        </div>
+                        <div class="tip-section">
+                            <h4>Styling Approach:</h4>
+                            <p>Great day for air drying - your curls will thank you!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-Day Planning Tab -->
+        <div id="planning-tab" class="tab-content">
+            <div class="day-switcher">
+                <button class="day-button active" onclick="switchDay(0)" id="day-0">Today</button>
+                <button class="day-button" onclick="switchDay(1)" id="day-1">Tomorrow</button>
+                <button class="day-button" onclick="switchDay(2)" id="day-2">Day 3</button>
             </div>
 
-            <div id="loading" class="loading" style="display: none;">
-                <p>🌦️ Analyzing weather conditions for your curls...</p>
-            </div>
-
-            <div id="error" class="error" style="display: none;"></div>
-
-            <div id="weatherDisplay" class="weather-display">
-                <div class="current-weather">
-                    <div class="weather-stat">
-                        <h3>Temperature</h3>
-                        <div class="value" id="temperature">--°F</div>
-                    </div>
-                    <div class="weather-stat">
-                        <h3>Feels Like</h3>
-                        <div class="value" id="feelsLike">--°F</div>
-                    </div>
-                    <div class="weather-stat">
-                        <h3>Humidity</h3>
-                        <div class="value" id="humidity">--%</div>
-                    </div>
-                    <div class="weather-stat">
-                        <h3>Dew Point</h3>
-                        <div class="value" id="dewPoint">--°F</div>
-                    </div>
-                </div>
-
-                <div class="frizz-forecast">
-                    <h3>Today's Frizz Forecast</h3>
-                    <div class="frizz-level" id="frizzLevel">Calculating...</div>
-                    <p id="frizzAdvice">Getting personalized recommendations...</p>
-                </div>
-
-                <div class="hair-tips" id="hairTips">
-                    <h3>Personalized Hair Care Tips</h3>
-                    <ul id="hairTipsList">
-                        <li>Complete your hair profile for personalized tips!</li>
-                    </ul>
-                </div>
-
-                <div class="api-info">
-                    <h4>📊 Weather Data Source</h4>
-                    <p>Using <strong>Open-Meteo API</strong> for accurate, real-time weather data</p>
-                    <p id="locationInfo"></p>
-                    <p id="updateTime"></p>
-                </div>
+            <div class="weather-cards" id="planning-cards">
+                <!-- Cards will be populated by JavaScript -->
             </div>
         </div>
     </div>
 
     <!-- Hair Profile Modal -->
-    <div id="profileModal" class="modal">
+    <div class="hair-profile-modal" id="hair-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>🧬 Your Curly Hair Profile</h2>
-                <button class="close-btn" onclick="closeProfileModal()">&times;</button>
-            </div>
-
-            <div id="profileComplete" class="profile-complete" style="display: none;">
-                <h3>✅ Profile Complete!</h3>
-                <p>Your personalized weather tips are now active.</p>
-            </div>
-
+            <button class="close-modal" onclick="closeHairProfile()">&times;</button>
+            <h3 style="margin-bottom: 20px; text-align: center; color: #333;">Set Up Your Hair Profile</h3>
+            
             <div class="quiz-question">
-                                        <h4>What's your hair pattern?</h4>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">All hair types get frizzy - straight to coily, we've got you covered!</p>
+                <h4>What's your hair pattern?</h4>
+                <p style="font-size: 14px; color: #666; margin-bottom: 12px;">All hair types get frizzy - straight to coily, we've got you covered!</p>
                 <div class="quiz-options" id="curlType">
+                    <div class="quiz-option" data-value="1A">1A - Pin straight, very fine hair</div>
+                    <div class="quiz-option" data-value="1B">1B - Straight with slight body</div>
+                    <div class="quiz-option" data-value="1C">1C - Straight with some waves when styled</div>
                     <div class="quiz-option" data-value="2A">2A - Loose, barely-there waves</div>
                     <div class="quiz-option" data-value="2B">2B - More defined waves with some frizz</div>
                     <div class="quiz-option" data-value="2C">2C - Strong waves with definite curls</div>
                     <div class="quiz-option" data-value="3A">3A - Large, loose curls</div>
                     <div class="quiz-option" data-value="3B">3B - Springy ringlets</div>
-                    <div class="quiz-option" data-value="3C">3C - Tight corkscrew curls</div>
+                    <div class="quiz-option" data-value="3C">3C - Tight corkscrews</div>
                     <div class="quiz-option" data-value="4A">4A - Soft coils</div>
                     <div class="quiz-option" data-value="4B">4B - Z-pattern coils</div>
-                    <div class="quiz-option" data-value="4C">4C - Tight, dense coils</div>
+                    <div class="quiz-option" data-value="4C">4C - Tight, densely packed coils</div>
                 </div>
             </div>
 
             <div class="quiz-question">
-                <h4>How quickly does your hair dry after washing?</h4>
-                <div class="quiz-options" id="dryTime">
-                    <div class="quiz-option" data-value="slow">Takes forever! 4+ hours (Low Porosity)</div>
-                    <div class="quiz-option" data-value="normal">2-3 hours (Normal Porosity)</div>
-                    <div class="quiz-option" data-value="fast">Dries quickly, under 2 hours (High Porosity)</div>
-                    <div class="quiz-option" data-value="mixed">Roots dry fast, ends take forever (Mixed Porosity)</div>
+                <h4>Hair Porosity?</h4>
+                <div class="quiz-options" id="porosity">
+                    <div class="quiz-option" data-value="low">Low - Takes forever to get wet, products sit on top</div>
+                    <div class="quiz-option" data-value="medium">Medium - Gets wet fairly quickly, products absorb well</div>
+                    <div class="quiz-option" data-value="high">High - Gets wet immediately, needs lots of moisture</div>
                 </div>
             </div>
 
-            <div class="quiz-question">
-                <h4>Is your hair chemically treated?</h4>
-                <div class="quiz-options" id="chemicalTreatment">
-                    <div class="quiz-option" data-value="none">Virgin/natural hair</div>
-                    <div class="quiz-option" data-value="color">Color treated</div>
-                    <div class="quiz-option" data-value="bleach">Bleached or highlighted</div>
-                    <div class="quiz-option" data-value="chemical">Relaxed, permed, or straightened</div>
-                </div>
+            <div style="text-align: center; margin-top: 25px;">
+                <button onclick="saveHairProfile()" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 25px; font-size: 16px; cursor: pointer;">Save Profile</button>
             </div>
-
-            <div class="quiz-question">
-                <h4>How thick is each individual hair strand?</h4>
-                <div class="quiz-options" id="hairTexture">
-                    <div class="quiz-option" data-value="fine">Fine - barely feel individual strands</div>
-                    <div class="quiz-option" data-value="medium">Medium - can feel strands between fingers</div>
-                    <div class="quiz-option" data-value="coarse">Coarse - thick, strong strands</div>
-                </div>
-            </div>
-
-            <div class="quiz-question">
-                <h4>How much hair do you have overall?</h4>
-                <div class="quiz-options" id="hairDensity">
-                    <div class="quiz-option" data-value="low">Low - can see scalp through hair</div>
-                    <div class="quiz-option" data-value="medium">Medium - some scalp visible</div>
-                    <div class="quiz-option" data-value="high">High - lots of hair, hard to see scalp</div>
-                </div>
-            </div>
-
-            <button class="btn" onclick="saveHairProfile()" style="width: 100%; margin-top: 30px; padding: 20px;">Save Hair Profile</button>
         </div>
     </div>
 
     <script>
         // Global variables
         let currentWeatherData = null;
-        let forecastWeatherData = null;
-        let currentForecastDay = 0;
+        let forecastData = null;
+        let currentDay = 0;
         let hairProfile = {
-            curlType: null,
-            porosity: null,
-            texture: null,
-            density: null,
-            chemicalTreatment: null
+            curlType: '3B',
+            porosity: 'medium'
         };
 
-        // Frizzball Hair Knowledge Engine - Based on r/curlyhair community wisdom
+        // Frizzball Hair Knowledge Engine
         const FrizzballKnowledge = {
-            
-            // Core techniques from CG Method
             techniques: {
                 plopping: {
                     description: "Wrap wet curls in cotton t-shirt to remove water without frizz",
-                    goodFor: ["2C", "3A", "3B", "3C"],
+                    goodFor: ["1C", "2A", "2B", "2C", "3A", "3B", "3C"],
                     weather: {
                         high_humidity: "15-20 minutes max - hair may take longer to dry",
                         low_humidity: "20-30 minutes - helps maintain moisture",
                         hot_weather: "Shorter time to prevent overheating scalp"
                     }
                 },
-                
                 scrunching: {
                     description: "Gently squeeze curls upward to encourage curl formation", 
                     goodFor: ["all"],
@@ -693,10 +590,9 @@
                         low_humidity: "Add leave-in before scrunching to prevent dryness"
                     }
                 },
-
                 diffusing: {
                     description: "Low heat blow drying with diffuser attachment",
-                    goodFor: ["3A", "3B", "3C", "4A", "4B", "4C"],
+                    goodFor: ["2C", "3A", "3B", "3C", "4A", "4B", "4C"],
                     weather: {
                         high_humidity: "Helps set curls and reduce drying time",
                         cold_weather: "Essential when air drying isn't practical"
@@ -704,1011 +600,570 @@
                 }
             },
 
-            // Weather-specific knowledge
             weatherConditions: {
                 high_humidity: {
                     threshold: 70,
                     effects: {
-                        "1A": "Pin straight hair prone to losing volume and getting flat",
-                        "1B": "Straight hair may get frizzy at the roots and lose smoothness", 
-                        "1C": "May develop unwanted waves and frizz - focus on smoothing",
-                        "2A": "May weigh down waves - use lighter products",
-                        "2B": "Can create more defined waves with right products", 
-                        "2C": "Great curl formation weather - use gel for hold",
-                        "3A": "Perfect for curl definition - apply products to wet hair",
-                        "3B": "Ideal conditions - gel scrunching method works best",
-                        "3C": "Natural curl enhancer - focus on anti-frizz products",
-                        "4A": "Adds natural volume - embrace the extra bounce",
-                        "4B": "Helps define coil pattern - use cream then gel",
-                        "4C": "Provides needed moisture from air - lighter products"
+                        "1A": "May become limp and oily-looking",
+                        "1B": "Slight volume increase, may lose sleekness", 
+                        "1C": "Natural waves enhanced, some frizz possible",
+                        "2A": "Waves more pronounced, light frizz",
+                        "2B": "Defined waves but increased frizz",
+                        "2C": "Enhanced curl pattern, moderate frizz",
+                        "3A": "More volume and bounce, some frizz",
+                        "3B": "Extra volume and definition",
+                        "3C": "Maximum volume, beautiful definition",
+                        "4A": "Moisturized and voluminous",
+                        "4B": "Enhanced curl definition",
+                        "4C": "Optimal moisture levels"
                     }
                 },
-
                 low_humidity: {
                     threshold: 30,
                     effects: {
-                        "1A": "Great for maintaining pin-straight sleekness",
-                        "1B": "Perfect for achieving smooth, glossy finish",
-                        "1C": "Ideal for straight styling without frizz",
-                        all: "Hair will lose moisture quickly - add extra hydration for curly types"
-                    }
-                },
-
-                hot_weather: {
-                    threshold: 85,
-                    effects: {
-                        "1A": "May go limp - use volumizing products",
-                        "1B": "Risk of heat damage and loss of smoothness",
-                        "1C": "May develop unwanted texture - use smoothing products",
-                        all: "Faster drying time, potential for heat damage"
+                        "1A": "May become flyaway and static",
+                        "1B": "Potential for static and dryness",
+                        "1C": "Waves may fall flat, dryness possible",
+                        "2A": "Waves may relax, hair may feel dry",
+                        "2B": "Less definition, potential dryness",
+                        "2C": "Curls may lose bounce, need moisture",
+                        "3A": "Curls may become loose and dry",
+                        "3B": "Less definition, increased dryness",
+                        "3C": "Curls tighten, need extra moisture",
+                        "4A": "May become dry and brittle",
+                        "4B": "Increased shrinkage, needs moisture",
+                        "4C": "Maximum shrinkage, extra hydration needed"
                     }
                 }
             },
 
-            // Porosity-specific knowledge from community
-            porosityGuide: {
-                slow: { // Low porosity
-                    weather_tips: {
-                        high_humidity: [
-                            "Skip heavy products - they won't absorb and cause buildup",
-                            "Use water-based, lightweight products only",
-                            "Pre-heat products in palms for better absorption"
-                        ],
-                        low_humidity: [
-                            "Apply products to soaking wet hair",
-                            "Consider using heat to help product penetration",
-                            "Clarifying shampoo may be needed more often"
-                        ]
-                    }
-                },
-
-                fast: { // High porosity
-                    weather_tips: {
-                        high_humidity: [
-                            "Your hair will grab moisture from air - expect extra volume",
-                            "Use leave-in conditioner and seal with light oil",
-                            "Great day for gel-heavy styling"
-                        ],
-                        low_humidity: [
-                            "Critical moisture day - layer hydrating products",
-                            "Deep condition tonight if very dry air",
-                            "Seal with oil or butter after leave-in"
-                        ]
-                    }
-                },
-
-                normal: {
-                    weather_tips: {
-                        any: ["Flexible hair type - adjust products based on specific weather"]
-                    }
-                },
-
-                mixed: {
-                    weather_tips: {
-                        any: ["Apply lighter products to roots, heavier to ends"]
-                    }
-                }
-            },
-
-            // Hair-specific techniques from community
-            curlTypeGuide: {
-                "1A": {
-                    techniques: ["volumizing mousse", "root lifting", "lightweight oils on ends only"],
-                    weather_strengths: { low_humidity: "Perfect for sleek, voluminous styles" },
-                    avoid: ["heavy products", "over-conditioning", "products near roots"]
-                },
-                "1B": {
-                    techniques: ["smoothing serum", "blow dry with round brush", "heat protectant"],
-                    weather_strengths: { low_humidity: "Ideal for smooth, glossy finish" },
-                    frizz_fighters: ["anti-humidity spray", "smoothing cream", "silk pillowcases"]
-                },
-                "1C": {
-                    techniques: ["straightening balm", "flat iron with heat protectant", "smoothing treatments"],
-                    weather_strengths: { low_humidity: "Best conditions for straight styling" },
-                    frizz_fighters: ["strong hold smoothing gel", "anti-frizz serum", "overnight masks"]
-                },
-                "2A": {
-                    techniques: ["sea salt spray", "volumizing mousse", "air dry"],
-                    weather_strengths: { low_humidity: "Perfect for wave definition" }
-                },
-                "2B": {
-                    techniques: ["scrunching with gel", "plopping", "diffusing for volume"],
-                    versatile: true
-                },
-                "2C": {
-                    techniques: ["gel application", "plopping", "scrunching"],
-                    weather_strengths: { high_humidity: "Great curl formation weather" }
-                },
-                "3A": {
-                    techniques: ["praying hands method", "plopping", "gentle diffusing"],
-                    weather_strengths: { high_humidity: "Perfect curl definition conditions" }
-                },
-                "3B": {
-                    techniques: ["gel scrunching", "praying hands", "finger coiling"],
-                    weather_strengths: { high_humidity: "Ideal for springy ringlets" }
-                },
-                "3C": {
-                    techniques: ["shingling method", "twist and shake", "heavy gel application"],
-                    moisture_needs: "high"
-                },
-                "4A": {
-                    techniques: ["shingling", "wash and go", "protective styles"],
-                    moisture_needs: "very high"
-                },
-                "4B": {
-                    techniques: ["stretch styles", "twist outs", "braid outs"],
-                    protective_focus: true
-                },
-                "4C": {
-                    techniques: ["protective styles", "twist outs", "bantu knots"],
-                    moisture_priority: "maximum"
-                }
-            },
-
-            // Generate personalized tips function - Returns structured recommendations
-            generateTips: function(weather, hairProfile) {
-                const { curlType, porosity, texture, density } = hairProfile;
-                const { temperature, humidity, dewPoint } = weather;
+            getPersonalizedTips: function(weatherData, hairType, porosity) {
+                const humidity = weatherData.humidity;
+                const temp = weatherData.temp;
+                const dewPoint = this.calculateDewPoint(weatherData.temp, weatherData.humidity);
                 
-                const recommendations = {
-                    forecast: "",
+                let tips = {
                     techniques: [],
-                    productTiming: []
+                    products: [],
+                    styling: [],
+                    education: ""
                 };
 
-                // TODAY'S FORECAST FOR [HAIR TYPE]
-                if (curlType) {
-                    let forecastMsg = "";
-                    
-                    if (humidity > 70) {
-                        const humidityEffect = this.weatherConditions.high_humidity.effects[curlType];
-                        if (humidityEffect) {
-                            if (curlType.startsWith('1')) { // Straight hair
-                                forecastMsg = "High humidity will challenge your smooth style - expect some frizz and volume loss.";
-                            } else if (curlType.startsWith('2')) { // Wavy hair
-                                forecastMsg = "High humidity may weigh down your waves but can enhance definition with right products.";
-                            } else if (curlType.startsWith('3')) { // Curly hair
-                                forecastMsg = "High humidity will enhance your curl definition and add natural volume.";
-                            } else if (curlType.startsWith('4')) { // Coily hair
-                                forecastMsg = "High humidity provides natural moisture - your coils will have extra bounce today.";
-                            }
-                        }
-                    } else if (humidity < 35) {
-                        if (curlType.startsWith('1')) { // Straight hair
-                            forecastMsg = "Low humidity is perfect for sleek, smooth styles - your best hair day ahead!";
-                        } else if (porosity === 'fast') {
-                            forecastMsg = "Dry air will pull moisture from your hair quickly - expect faster drying but potential frizz.";
-                        } else if (porosity === 'slow') {
-                            forecastMsg = "Dry air may actually help with product absorption - good definition day ahead.";
+                // Determine weather condition
+                let condition = humidity > 70 ? 'high_humidity' : humidity < 30 ? 'low_humidity' : 'moderate';
+                
+                // Add technique recommendations
+                Object.keys(this.techniques).forEach(technique => {
+                    const tech = this.techniques[technique];
+                    if (tech.goodFor.includes(hairType) || tech.goodFor.includes('all')) {
+                        if (tech.weather[condition]) {
+                            tips.techniques.push(`${tech.description} - ${tech.weather[condition]}`);
                         } else {
-                            forecastMsg = "Low humidity means your curls may lose moisture - plan for extra hydration.";
+                            tips.techniques.push(tech.description);
                         }
-                    } else if (temperature > 85) {
-                        if (curlType.startsWith('1')) {
-                            forecastMsg = "Hot weather may cause your straight hair to go limp and lose volume.";
-                        } else {
-                            forecastMsg = "Hot weather will speed up drying time and may cause heat-related frizz.";
-                        }
-                    } else {
-                        forecastMsg = "Great conditions for your natural hair pattern today!";
                     }
-                    
-                    recommendations.forecast = forecastMsg;
+                });
+
+                // Add weather-specific effects
+                if (this.weatherConditions[condition] && this.weatherConditions[condition].effects[hairType]) {
+                    tips.education = this.weatherConditions[condition].effects[hairType];
                 }
 
-                // TECHNIQUE RECOMMENDATIONS
+                // Add product recommendations based on conditions
                 if (humidity > 70) {
-                    if (['1A', '1B', '1C'].includes(curlType)) {
-                        recommendations.techniques.push("Use anti-humidity serum before styling");
-                        recommendations.techniques.push("Consider a sleek low bun or ponytail to combat frizz");
-                    } else if (['3A', '3B', '3C'].includes(curlType)) {
-                        recommendations.techniques.push("Perfect weather for gel scrunching method!");
-                        recommendations.techniques.push("Air dry day - humidity will enhance definition");
-                    } else if (['2A', '2B', '2C'].includes(curlType)) {
-                        recommendations.techniques.push("Try scrunching with lightweight gel");
-                        recommendations.techniques.push("Plopping for 15-20 minutes max today");
-                    } else if (['4A', '4B', '4C'].includes(curlType)) {
-                        recommendations.techniques.push("Great day for wash and go styles");
-                        recommendations.techniques.push("Shingling method will work beautifully");
-                    }
-                } else if (humidity < 40) {
-                    if (['1A', '1B', '1C'].includes(curlType)) {
-                        recommendations.techniques.push("Perfect weather for blow-drying smooth!");
-                        recommendations.techniques.push("Great day for flat iron styling with heat protectant");
-                    } else if (['2A', '2B'].includes(curlType)) {
-                        recommendations.techniques.push("Perfect weather for diffusing with volume!");
-                        recommendations.techniques.push("Sea salt spray application will work great");
-                    } else {
-                        recommendations.techniques.push("Consider diffusing to lock in moisture");
-                        recommendations.techniques.push("Praying hands method for even product distribution");
-                    }
-                } else if (temperature > 85) {
-                    if (curlType.startsWith('1')) {
-                        recommendations.techniques.push("Use volumizing products at roots only");
-                        recommendations.techniques.push("Light misting with setting spray to combat limpness");
-                    } else {
-                        recommendations.techniques.push("Quick diffuse on low heat recommended");
-                        recommendations.techniques.push("Avoid touching hair while it dries in heat");
-                    }
-                } else {
-                    const hairGuide = this.curlTypeGuide[curlType];
-                    if (hairGuide && hairGuide.techniques) {
-                        recommendations.techniques.push(`Great day for ${hairGuide.techniques[0]} technique`);
-                    }
+                    tips.products.push("Use anti-humidity gel or mousse for hold");
+                    tips.products.push("Skip heavy oils and creams today");
+                    if (porosity === 'high') tips.products.push("Light protein treatment can help");
+                } else if (humidity < 30) {
+                    tips.products.push("Use leave-in conditioner and oils for moisture");
+                    tips.products.push("Avoid alcohol-based products");
+                    if (porosity === 'low') tips.products.push("Use lighter, water-based products");
                 }
 
-                // PRODUCT TIMING
-                if (humidity > 65) {
-                    if (curlType.startsWith('1')) { // Straight hair
-                        recommendations.productTiming.push("Apply anti-humidity products to damp hair before styling");
-                        recommendations.productTiming.push("Use heat protectant even if air drying");
-                    } else {
-                        recommendations.productTiming.push("Apply products to soaking wet hair today");
-                    }
-                    
-                    if (porosity === 'slow') {
-                        recommendations.productTiming.push("Use water-based products only - skip heavy creams");
-                    } else if (porosity === 'fast') {
-                        recommendations.productTiming.push("Layer leave-in, then seal with light oil");
-                    }
-                } else if (humidity < 35) {
-                    if (curlType.startsWith('1')) {
-                        recommendations.productTiming.push("Perfect conditions - minimal products needed for sleek styles");
-                    } else {
-                        recommendations.productTiming.push("Apply extra leave-in conditioner before styling");
-                        if (porosity === 'fast') {
-                            recommendations.productTiming.push("Deep condition tonight - dry air will dehydrate hair");
-                        } else {
-                            recommendations.productTiming.push("Pre-heat products in palms for better absorption");
-                        }
-                    }
-                } else {
-                    recommendations.productTiming.push("Standard application - damp to wet hair works well");
+                // Add styling recommendations
+                if (temp > 80) {
+                    tips.styling.push("Perfect weather for air drying");
+                    tips.styling.push("Consider protective styles for extended outdoor time");
+                } else if (temp < 50) {
+                    tips.styling.push("Diffusing recommended - cold air drying may take too long");
+                    tips.styling.push("Use heat protectant if blow drying");
                 }
 
-                // Add texture-specific product timing
-                if (texture === 'fine') {
-                    recommendations.productTiming.push("Less is more - use light application to avoid weighing down");
-                } else if (texture === 'coarse') {
-                    recommendations.productTiming.push("Your hair can handle generous product application");
-                }
+                return tips;
+            },
 
-                // Add density-specific advice
-                if (density === 'high') {
-                    recommendations.productTiming.push("Section hair in 4-6 parts for even distribution");
-                }
+            calculateDewPoint: function(temp, humidity) {
+                // Simplified dew point calculation
+                return temp - ((100 - humidity) / 5);
+            },
 
-                return recommendations;
+            getFrizzRisk: function(humidity, dewPoint, hairType) {
+                // Risk calculation based on hair type and weather
+                let riskScore = 0;
+                
+                if (humidity > 80) riskScore += 3;
+                else if (humidity > 60) riskScore += 2;
+                else if (humidity < 30) riskScore += 2;
+                
+                if (dewPoint > 60) riskScore += 2;
+                else if (dewPoint < 40) riskScore += 1;
+                
+                // Hair type multiplier
+                const typeMultipliers = {
+                    "1A": 0.5, "1B": 0.7, "1C": 1,
+                    "2A": 1.2, "2B": 1.4, "2C": 1.6,
+                    "3A": 1.8, "3B": 2, "3C": 2.2,
+                    "4A": 1.5, "4B": 1.3, "4C": 1.1
+                };
+                
+                riskScore *= (typeMultipliers[hairType] || 1);
+                
+                if (riskScore <= 2) return { level: 'low', color: 'risk-low', icon: '🌿' };
+                if (riskScore <= 4) return { level: 'moderate', color: 'risk-moderate', icon: '⚠️' };
+                return { level: 'high', color: 'risk-high', icon: '🚨' };
             }
         };
 
-        // Load saved hair profile on page load
-        function loadHairProfile() {
-            try {
-                const saved = localStorage.getItem('frizzball-hair-profile');
-                console.log('Loading saved profile from localStorage:', saved);
-                
-                if (saved) {
-                    hairProfile = JSON.parse(saved);
-                    console.log('Parsed hair profile:', hairProfile);
-                    
-                    updateAvatarDisplay();
-                    updateQuizSelections();
-                    checkProfileCompletion();
-                } else {
-                    console.log('No saved profile found, showing incomplete profile banner');
-                    showIncompleteProfile();
-                }
-            } catch (error) {
-                console.error('Error loading hair profile:', error);
-                showIncompleteProfile();
-            }
-        }
-
-        // Initialize tips card as collapsed
-        function initializeForecastUI() {
-            const tipsContent = document.getElementById('forecastTipsContent');
-            const expandBtn = document.getElementById('tipsExpandBtn');
-            
-            if (tipsContent && expandBtn) {
-                tipsContent.classList.add('collapsed');
-                expandBtn.textContent = '▼';
-            }
-
-            // Update day labels based on current date
-            updateDayLabels();
-
-            // Set up midnight auto-advance
-            setupMidnightUpdate();
-        }
-
-        // Update day labels (Today, Tomorrow, Day 3)
-        function updateDayLabels() {
-            const now = new Date();
-            const options = { weekday: 'short', month: 'short', day: 'numeric' };
-            
-            document.getElementById('day0Tab').innerHTML = 'Today<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
-                now.toLocaleDateString('en-US', options) + '</small>';
-            
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('day1Tab').innerHTML = 'Tomorrow<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
-                tomorrow.toLocaleDateString('en-US', options) + '</small>';
-            
-            const dayAfter = new Date(now);
-            dayAfter.setDate(dayAfter.getDate() + 2);
-            document.getElementById('day2Tab').innerHTML = dayAfter.toLocaleDateString('en-US', { weekday: 'long' }) + 
-                '<br><small style="opacity: 0.7; font-size: 0.8em;">' + 
-                dayAfter.toLocaleDateString('en-US', options) + '</small>';
-        }
-
-        // Setup midnight auto-advance
-        function setupMidnightUpdate() {
-            const now = new Date();
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-            
-            const msUntilMidnight = tomorrow.getTime() - now.getTime();
-            
-            setTimeout(() => {
-                // Update day labels
-                updateDayLabels();
-                
-                // Clear forecast data to force refresh
-                forecastWeatherData = null;
-                
-                // If on weekly tab, refresh forecast
-                const weeklyTab = document.getElementById('weekly-tab');
-                if (weeklyTab && weeklyTab.classList.contains('active')) {
-                    fetchForecastData();
-                }
-                
-                // Set up for next midnight
-                setupMidnightUpdate();
-            }, msUntilMidnight);
-        }
-
-        function showIncompleteProfile() {
-            document.getElementById('incompleteProfile').style.display = 'block';
-        }
-
-        function hideIncompleteProfile() {
-            document.getElementById('incompleteProfile').style.display = 'none';
-        }
-
-        function checkProfileCompletion() {
-            const isComplete = hairProfile.curlType && hairProfile.porosity && 
-                             hairProfile.texture && hairProfile.density && 
-                             hairProfile.chemicalTreatment;
-            
-            if (isComplete) {
-                hideIncompleteProfile();
-                document.getElementById('profileComplete').style.display = 'block';
-            } else {
-                showIncompleteProfile();
-                document.getElementById('profileComplete').style.display = 'none';
-            }
-        }
-
-        function updateAvatarDisplay() {
-            const nameEl = document.getElementById('avatarName');
-            const typeEl = document.getElementById('avatarType');
-            const iconEl = document.getElementById('avatarIcon');
-            
-            console.log('Updating avatar with profile:', hairProfile);
-            
-            if (hairProfile.curlType) {
-                // Set hair emoji based on type - representing all hair patterns
-                const hairEmojis = {
-                    '1A': '🪶', // Pin straight (feather - very straight and fine)
-                    '1B': '➖', // Straight with body  
-                    '1C': '📏', // Straight with some texture
-                    '2A': '〰️', // Loose waves
-                    '2B': '〰️', // More defined waves  
-                    '2C': '🌊', // Strong waves
-                    '3A': '🌀', // Large loose curls
-                    '3B': '🍥', // Springy ringlets (spiral pattern)
-                    '3C': '🌰', // Tight corkscrew curls
-                    '4A': '☁️', // Soft coils (cloud-like)
-                    '4B': '⚫', // Z-pattern coils 
-                    '4C': '🔘' // Tight dense coils
-                };
-                
-                const selectedEmoji = hairEmojis[hairProfile.curlType] || '💫';
-                iconEl.textContent = selectedEmoji;
-                
-                // Update name to be more inclusive
-                const hairTypeNames = {
-                    '1A': '1A Straight',
-                    '1B': '1B Straight', 
-                    '1C': '1C Straight',
-                    '2A': '2A Wavy',
-                    '2B': '2B Wavy',
-                    '2C': '2C Wavy',
-                    '3A': '3A Curly',
-                    '3B': '3B Curly', 
-                    '3C': '3C Curly',
-                    '4A': '4A Coily',
-                    '4B': '4B Coily',
-                    '4C': '4C Coily'
-                };
-                
-                nameEl.textContent = hairTypeNames[hairProfile.curlType] || `${hairProfile.curlType} Hair`;
-                
-                const porosityText = {
-                    'slow': 'Low Porosity',
-                    'normal': 'Normal Porosity',
-                    'fast': 'High Porosity',
-                    'mixed': 'Mixed Porosity'
-                };
-                
-                const porosityDisplay = porosityText[hairProfile.porosity] || hairProfile.porosity;
-                const textureDisplay = hairProfile.texture ? hairProfile.texture.charAt(0).toUpperCase() + hairProfile.texture.slice(1) : '';
-                
-                typeEl.textContent = `${porosityDisplay} • ${textureDisplay} texture`;
-                
-                console.log('Avatar updated - Icon:', selectedEmoji, 'Name:', nameEl.textContent, 'Type:', typeEl.textContent);
-            } else {
-                iconEl.textContent = '👤';
-                nameEl.textContent = 'Set Hair Profile';
-                typeEl.textContent = 'Click to configure';
-                console.log('Avatar reset to default');
-            }
-        }
-
-        function openProfileModal() {
-            console.log('Opening profile modal with current profile:', hairProfile);
-            document.getElementById('profileModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-            
-            // Refresh quiz selections when modal opens
-            setTimeout(() => {
-                updateQuizSelections();
-            }, 100);
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Quiz option selection
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.quiz-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const parent = this.parentElement;
-                    parent.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                });
-            });
-            
-            loadHairProfile();
-        });
-
-        function updateQuizSelections() {
-            console.log('Updating quiz selections with profile:', hairProfile);
-            
-            // Clear all selections first
-            document.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            // Update UI to show saved selections
-            if (hairProfile.curlType) {
-                const curlEl = document.querySelector(`#curlType [data-value="${hairProfile.curlType}"]`);
-                if (curlEl) {
-                    curlEl.classList.add('selected');
-                    console.log('Selected curl type:', hairProfile.curlType);
-                } else {
-                    console.log('Could not find curl type element for:', hairProfile.curlType);
-                }
-            }
-            
-            if (hairProfile.porosity) {
-                const porosityEl = document.querySelector(`#dryTime [data-value="${hairProfile.porosity}"]`);
-                if (porosityEl) {
-                    porosityEl.classList.add('selected');
-                    console.log('Selected porosity:', hairProfile.porosity);
-                } else {
-                    console.log('Could not find porosity element for:', hairProfile.porosity);
-                }
-            }
-            
-            if (hairProfile.chemicalTreatment) {
-                const chemicalEl = document.querySelector(`#chemicalTreatment [data-value="${hairProfile.chemicalTreatment}"]`);
-                if (chemicalEl) {
-                    chemicalEl.classList.add('selected');
-                    console.log('Selected chemical treatment:', hairProfile.chemicalTreatment);
-                } else {
-                    console.log('Could not find chemical treatment element for:', hairProfile.chemicalTreatment);
-                }
-            }
-            
-            if (hairProfile.texture) {
-                const textureEl = document.querySelector(`#hairTexture [data-value="${hairProfile.texture}"]`);
-                if (textureEl) {
-                    textureEl.classList.add('selected');
-                    console.log('Selected texture:', hairProfile.texture);
-                } else {
-                    console.log('Could not find texture element for:', hairProfile.texture);
-                }
-            }
-            
-            if (hairProfile.density) {
-                const densityEl = document.querySelector(`#hairDensity [data-value="${hairProfile.density}"]`);
-                if (densityEl) {
-                    densityEl.classList.add('selected');
-                    console.log('Selected density:', hairProfile.density);
-                } else {
-                    console.log('Could not find density element for:', hairProfile.density);
-                }
-            }
-        }
-
-        function saveHairProfile() {
-            // Get selected values
-            const curlTypeSelected = document.querySelector('#curlType .quiz-option.selected');
-            const dryTimeSelected = document.querySelector('#dryTime .quiz-option.selected');
-            const chemicalSelected = document.querySelector('#chemicalTreatment .quiz-option.selected');
-            const textureSelected = document.querySelector('#hairTexture .quiz-option.selected');
-            const densitySelected = document.querySelector('#hairDensity .quiz-option.selected');
-
-            console.log('Saving profile with selections:', {
-                curl: curlTypeSelected?.dataset.value,
-                dryTime: dryTimeSelected?.dataset.value,
-                chemical: chemicalSelected?.dataset.value,
-                texture: textureSelected?.dataset.value,
-                density: densitySelected?.dataset.value
-            });
-
-            if (!curlTypeSelected || !dryTimeSelected || !chemicalSelected || !textureSelected || !densitySelected) {
-                alert('Please answer all questions to save your profile!');
+        // Location and Weather Functions
+        async function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
                 return;
             }
 
-            // Determine porosity from dry time and chemical treatment
-            let porosity = dryTimeSelected.dataset.value;
-            if (chemicalSelected.dataset.value !== 'none' && porosity === 'slow') {
-                porosity = 'normal';
-            }
-            if (chemicalSelected.dataset.value === 'bleach') {
-                porosity = 'high';
-            }
-
-            // Update global hair profile
-            hairProfile = {
-                curlType: curlTypeSelected.dataset.value,
-                porosity: porosity,
-                texture: textureSelected.dataset.value,
-                density: densitySelected.dataset.value,
-                chemicalTreatment: chemicalSelected.dataset.value
-            };
-
-            console.log('Updated hairProfile:', hairProfile);
-
-            // Save to localStorage
-            try {
-                localStorage.setItem('frizzball-hair-profile', JSON.stringify(hairProfile));
-                console.log('Profile saved to localStorage successfully');
-            } catch (error) {
-                console.error('Error saving to localStorage:', error);
-                alert('Error saving profile. Please try again.');
-                return;
-            }
-
-            // Update all UI elements
-            updateAvatarDisplay();
-            checkProfileCompletion();
-            
-            // Update hair tips if weather is displayed
-            if (currentWeatherData) {
-                console.log('Updating hair tips with new profile');
-                updateHairTips();
-                
-                // Also update forecast if it's displayed
-                if (forecastWeatherData) {
-                    displayForecastDay(currentForecastDay);
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    await getWeatherByCoords(lat, lon);
+                },
+                (error) => {
+                    alert('Unable to retrieve your location. Please enter manually.');
                 }
-            }
-
-            // Close modal
-            closeProfileModal();
-            
-            // Show success message after a brief delay
-            setTimeout(() => {
-                alert('Hair profile saved! Your weather tips are now personalized to your curl type and porosity.');
-            }, 300);
-        }
-
-        function calculateDewPoint(tempC, humidity) {
-            const a = 17.27;
-            const b = 237.7;
-            const alpha = ((a * tempC) / (b + tempC)) + Math.log(humidity / 100.0);
-            return (b * alpha) / (a - alpha);
-        }
-
-        function assessFrizzRisk(temp, humidity, dewPoint, hairProfile) {
-            let frizzScore = 0;
-            let advice = "";
-            
-            // Base humidity impact
-            if (humidity > 70) {
-                frizzScore += 3;
-            } else if (humidity > 50) {
-                frizzScore += 2;
-            } else if (humidity < 30) {
-                frizzScore += 2;
-            } else {
-                frizzScore += 1;
-            }
-            
-            // Dew point impact
-            const dewPointF = (dewPoint * 9/5) + 32;
-            if (dewPointF > 65) {
-                frizzScore += 2;
-            } else if (dewPointF > 55) {
-                frizzScore += 1;
-            }
-            
-            // Temperature impact
-            if (temp > 85) {
-                frizzScore += 1;
-            }
-
-            // Adjust for hair type
-            if (hairProfile && hairProfile.porosity) {
-                if (hairProfile.porosity === 'fast') {
-                    frizzScore += 1;
-                }
-                if (hairProfile.porosity === 'slow' && humidity > 60) {
-                    frizzScore += 1;
-                }
-            }
-            
-            // Generate advice based on curl type
-            if (frizzScore >= 6) {
-                advice = hairProfile.curlType ? 
-                    `Extreme conditions for ${hairProfile.curlType} curls! Use strong hold products and protective styles.` :
-                    "Extreme frizz risk! Use strong hold products and protective styles.";
-                return { level: "Extreme Risk 🚨🚨", advice, score: frizzScore };
-            } else if (frizzScore >= 5) {
-                advice = hairProfile.curlType ? 
-                    `High frizz risk for your ${hairProfile.curlType} curls. Use anti-humidity products and avoid touching hair.` :
-                    "High frizz risk! Use anti-humidity products and avoid touching hair.";
-                return { level: "High Risk 🚨", advice, score: frizzScore };
-            } else if (frizzScore >= 3) {
-                advice = "Moderate frizz risk. Use lightweight moisture products and gentle styling.";
-                return { level: "Moderate Risk ⚠️", advice, score: frizzScore };
-            } else {
-                advice = hairProfile.curlType ? 
-                    `Perfect weather for your ${hairProfile.curlType} curls! Great day for your natural texture.` :
-                    "Low frizz risk! Great day for your natural texture.";
-                return { level: "Low Risk ✅", advice, score: frizzScore };
-            }
-        }
-
-        function updateHairTips() {
-            const tipsEl = document.getElementById('hairTipsList');
-            
-            if (!currentWeatherData) {
-                tipsEl.innerHTML = '<li>Get weather forecast for personalized tips!</li>';
-                return;
-            }
-
-            if (!hairProfile.curlType) {
-                tipsEl.innerHTML = '<li>Complete your hair profile for personalized tips based on your curl type and porosity!</li>';
-                return;
-            }
-
-            // Prepare weather data for knowledge engine
-            const current = currentWeatherData.current;
-            const tempF = Math.round(current.temperature_2m);
-            const humidity = Math.round(current.relative_humidity_2m);
-            const tempC = (tempF - 32) * 5/9;
-            const dewPointC = calculateDewPoint(tempC, humidity);
-            const dewPointF = Math.round((dewPointC * 9/5) + 32);
-
-            const weatherData = {
-                temperature: tempF,
-                humidity: humidity,
-                dewPoint: dewPointF
-            };
-
-            // Use the smart knowledge engine to generate structured tips
-            const smartTips = FrizzballKnowledge.generateTips(weatherData, hairProfile);
-
-            // Build formatted HTML with bold headers
-            let tipsHTML = '';
-
-            // Today's Forecast
-            if (smartTips.forecast) {
-                const hairTypeName = hairProfile.curlType.startsWith('1') ? 'hair' : 
-                                   hairProfile.curlType.startsWith('2') ? 'waves' :
-                                   hairProfile.curlType.startsWith('3') ? 'curls' : 'coils';
-                tipsHTML += `<li><strong>Today's forecast for ${hairProfile.curlType} ${hairTypeName}</strong>: "${smartTips.forecast}"</li>`;
-            }
-
-            // Technique Recommendations
-            if (smartTips.techniques.length > 0) {
-                const techniqueText = smartTips.techniques[0]; // Primary technique
-                tipsHTML += `<li><strong>Technique recommendations</strong>: "${techniqueText}"</li>`;
-                
-                // Add secondary technique if available
-                if (smartTips.techniques.length > 1) {
-                    tipsHTML += `<li><strong>Secondary technique</strong>: "${smartTips.techniques[1]}"</li>`;
-                }
-            }
-
-            // Product Timing
-            if (smartTips.productTiming.length > 0) {
-                const primaryTiming = smartTips.productTiming[0];
-                tipsHTML += `<li><strong>Product timing</strong>: "${primaryTiming}"</li>`;
-                
-                // Add additional product timing tips
-                smartTips.productTiming.slice(1, 3).forEach(tip => {
-                    tipsHTML += `<li><strong>Product tip</strong>: "${tip}"</li>`;
-                });
-            }
-
-            // Display the formatted tips
-            if (tipsHTML) {
-                tipsEl.innerHTML = tipsHTML;
-            } else {
-                const hairTypeName = hairProfile.curlType.startsWith('1') ? 'hair' : 
-                                   hairProfile.curlType.startsWith('2') ? 'waves' :
-                                   hairProfile.curlType.startsWith('3') ? 'curls' : 'coils';
-                tipsEl.innerHTML = `<li><strong>Today's forecast</strong>: "Great weather conditions for your ${hairProfile.curlType} ${hairTypeName} - enjoy your natural texture!"</li>`;
-            }
-        }
-
-        // Weather functions (same as before)
-        async function tryMultipleGeocoding(locationInput) {
-            const searchVariations = [
-                locationInput,
-                locationInput.replace(',', ''),
-                locationInput.split(',')[0].trim(),
-                locationInput.replace(', CA', ', California'),
-                locationInput.replace(', CA', ', United States')
-            ];
-
-            for (let variation of searchVariations) {
-                try {
-                    console.log(`Trying geocoding for: "${variation}"`);
-                    const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(variation)}&count=5&language=en&format=json`;
-                    
-                    const geocodeResponse = await fetch(geocodeUrl, {
-                        method: 'GET',
-                        headers: { 'Accept': 'application/json' },
-                    });
-
-                    if (geocodeResponse.ok) {
-                        const geocodeData = await geocodeResponse.json();
-                        console.log(`Geocode data for "${variation}":`, geocodeData);
-                        
-                        if (geocodeData.results && geocodeData.results.length > 0) {
-                            let bestMatch = geocodeData.results[0];
-                            if (locationInput.includes('CA') || locationInput.toLowerCase().includes('california')) {
-                                const usMatch = geocodeData.results.find(r => 
-                                    r.country_code === 'US' || 
-                                    r.country === 'United States' ||
-                                    (r.admin1 && r.admin1.toLowerCase().includes('california'))
-                                );
-                                if (usMatch) bestMatch = usMatch;
-                            }
-                            console.log(`Found location: ${bestMatch.name}, ${bestMatch.admin1 || ''} ${bestMatch.country || ''}`);
-                            return bestMatch;
-                        }
-                    }
-                } catch (error) {
-                    console.log(`Failed to geocode "${variation}":`, error.message);
-                    continue;
-                }
-            }
-            return null;
-        }
-
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('error').style.display = 'none';
-            document.getElementById('weatherDisplay').classList.remove('show');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function showError(message) {
-            hideLoading();
-            document.getElementById('error').innerHTML = `<strong>Error:</strong> ${message}`;
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('weatherDisplay').classList.remove('show');
+            );
         }
 
         async function getWeatherByLocation() {
-            const locationInput = document.getElementById('locationInput').value.trim();
-            if (!locationInput) {
-                showError('Please enter a location.');
+            const location = document.getElementById('locationInput').value.trim();
+            if (!location) {
+                alert('Please enter a location');
                 return;
             }
 
-            showLoading();
-
             try {
-                const location = await tryMultipleGeocoding(locationInput);
+                // First get coordinates from location name
+                const geoResponse = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=bd5e378503939ddaee76f12ad7a97608`);
+                const geoData = await geoResponse.json();
                 
-                if (!location) {
-                    showError(`Location "${locationInput}" not found. Try formats like: "Sacramento", "Sacramento California", or "Sacramento, United States"`);
-                    return;
+                if (!geoData || geoData.length === 0) {
+                    throw new Error('Location not found');
                 }
 
-                console.log('Using location:', location);
-                await fetchWeatherData(location.latitude, location.longitude, location);
+                const { lat, lon } = geoData[0];
+                await getWeatherByCoords(lat, lon);
+                
             } catch (error) {
-                console.error('Geocoding error:', error);
-                showError(`Failed to find location: ${error.message}`);
+                alert('Error finding location: ' + error.message);
             }
         }
 
-        async function getWeatherByGeolocation() {
-            if (!navigator.geolocation) {
-                showError('Geolocation is not supported by this browser.');
-                return;
-            }
+        async function getWeatherByCoords(lat, lon) {
+            try {
+                // Get both current weather and forecast
+                const [currentResponse, forecastResponse] = await Promise.all([
+                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
+                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`)
+                ]);
 
-            showLoading();
-            
-            console.log('Requesting geolocation...');
-            
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                console.log('Geolocation success:', position.coords);
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                await fetchWeatherData(lat, lon);
-            }, (error) => {
-                console.error('Geolocation error:', error);
-                let errorMsg = 'Unable to retrieve location. ';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg += 'Location access denied by user.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg += 'Location information is unavailable.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg += 'Location request timed out.';
-                        break;
-                    default:
-                        errorMsg += 'An unknown error occurred.';
+                if (!currentResponse.ok || !forecastResponse.ok) {
+                    throw new Error('Weather data unavailable');
                 }
-                showError(errorMsg);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 300000
+
+                currentWeatherData = await currentResponse.json();
+                const forecastRaw = await forecastResponse.json();
+                
+                // Process forecast data
+                forecastData = processForecastData(forecastRaw);
+                
+                updateWeatherDisplay();
+                updatePlanningView();
+                
+            } catch (error) {
+                alert('Error getting weather data: ' + error.message);
+            }
+        }
+
+        function processForecastData(forecastRaw) {
+            const dailyData = {};
+            
+            forecastRaw.list.forEach(item => {
+                const date = new Date(item.dt * 1000).toDateString();
+                if (!dailyData[date]) {
+                    dailyData[date] = {
+                        temps: [],
+                        humidity: [],
+                        conditions: [],
+                        dt: item.dt,
+                        weather: item.weather[0]
+                    };
+                }
+                
+                dailyData[date].temps.push(item.main.temp);
+                dailyData[date].humidity.push(item.main.humidity);
+                dailyData[date].conditions.push(item.weather[0]);
+            });
+            
+            // Convert to array and take first 3 days
+            return Object.keys(dailyData).slice(0, 3).map((date, index) => {
+                const day = dailyData[date];
+                return {
+                    date: date,
+                    temp: Math.round(day.temps.reduce((a, b) => a + b) / day.temps.length),
+                    humidity: Math.round(day.humidity.reduce((a, b) => a + b) / day.humidity.length),
+                    condition: day.weather.main,
+                    description: day.weather.description,
+                    icon: day.weather.icon,
+                    dayName: index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : 'Day 3'
+                };
             });
         }
 
-        async function fetchWeatherData(lat, lon, locationInfo = null) {
-            try {
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature&hourly=temperature_2m,relative_humidity_2m&temperature_unit=fahrenheit&timezone=auto`;
-                
-                console.log('Fetching weather from:', weatherUrl);
-                
-                const weatherResponse = await fetch(weatherUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
+        function updateWeatherDisplay() {
+            if (!currentWeatherData) return;
+
+            const weather = currentWeatherData;
+            const temp = Math.round(weather.main.temp);
+            const feelsLike = Math.round(weather.main.feels_like);
+            const humidity = weather.main.humidity;
+            const description = weather.weather[0].description;
+            const icon = getWeatherIcon(weather.weather[0].main);
+
+            // Update weather card
+            document.querySelector('.weather-icon').textContent = icon;
+            document.querySelector('.temperature').textContent = `${temp}°F`;
+            document.querySelector('.description').textContent = description.charAt(0).toUpperCase() + description.slice(1);
+            document.querySelector('.feels-like').textContent = `Feels like ${feelsLike}°F`;
+
+            // Update humidity stats
+            const dewPoint = Math.round(FrizzballKnowledge.calculateDewPoint(temp, humidity));
+            document.getElementById('humidity-val').textContent = `${humidity}%`;
+            document.getElementById('dewpoint-val').textContent = `${dewPoint}°F`;
+
+            // Update frizz forecast
+            const frizzRisk = FrizzballKnowledge.getFrizzRisk(humidity, dewPoint, hairProfile.curlType);
+            const frizzElement = document.querySelector('.frizz-risk');
+            frizzElement.className = `frizz-risk ${frizzRisk.color}`;
+            frizzElement.textContent = `${frizzRisk.icon} ${frizzRisk.level.charAt(0).toUpperCase() + frizzRisk.level.slice(1)} Frizz Risk`;
+
+            // Update personalized tips
+            const tips = FrizzballKnowledge.getPersonalizedTips(
+                { temp, humidity, feels_like: feelsLike },
+                hairProfile.curlType,
+                hairProfile.porosity
+            );
+
+            updateTipsDisplay(tips);
+
+            // Update humidity explanation
+            const explanation = getHumidityExplanation(humidity, dewPoint, hairProfile.curlType);
+            document.getElementById('humidity-explanation').textContent = explanation;
+        }
+
+        function updateTipsDisplay(tips) {
+            const tipsContent = document.getElementById('tips-content');
+            
+            let html = '';
+            
+            if (tips.techniques.length > 0) {
+                html += '<div class="tip-section"><h4>Recommended Techniques:</h4>';
+                tips.techniques.forEach(tip => {
+                    html += `<p>${tip}</p>`;
                 });
-
-                console.log('Weather response status:', weatherResponse.status);
-
-                if (!weatherResponse.ok) {
-                    throw new Error(`HTTP error! status: ${weatherResponse.status}`);
-                }
-
-                const weatherData = await weatherResponse.json();
-                console.log('Weather data:', weatherData);
-
-                if (weatherData.error) {
-                    throw new Error(weatherData.reason || 'Weather API error');
-                }
-
-                hideLoading();
-                displayWeatherData(weatherData, locationInfo);
-                
-            } catch (error) {
-                console.error('Weather fetch error:', error);
-                showError(`Failed to fetch weather data: ${error.message}. Check console for details.`);
+                html += '</div>';
             }
+
+            if (tips.products.length > 0) {
+                html += '<div class="tip-section"><h4>Product Recommendations:</h4>';
+                tips.products.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.styling.length > 0) {
+                html += '<div class="tip-section"><h4>Styling Approach:</h4>';
+                tips.styling.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            tipsContent.innerHTML = html;
         }
 
-        function displayWeatherData(data, locationInfo) {
-            currentWeatherData = data;
+        function getHumidityExplanation(humidity, dewPoint, hairType) {
+            let explanation = `Air is holding ${humidity}% of possible moisture. `;
             
-            const current = data.current;
-            const tempF = Math.round(current.temperature_2m);
-            const humidity = Math.round(current.relative_humidity_2m);
-            const feelsLikeF = Math.round(current.apparent_temperature);
-            
-            const tempC = (tempF - 32) * 5/9;
-            const dewPointC = calculateDewPoint(tempC, humidity);
-            const dewPointF = Math.round((dewPointC * 9/5) + 32);
-            
-            document.getElementById('temperature').textContent = `${tempF}°F`;
-            document.getElementById('feelsLike').textContent = `${feelsLikeF}°F`;
-            document.getElementById('humidity').textContent = `${humidity}%`;
-            document.getElementById('dewPoint').textContent = `${dewPointF}°F`;
-            
-            const frizzAssessment = assessFrizzRisk(tempF, humidity, dewPointC, hairProfile);
-            document.getElementById('frizzLevel').textContent = frizzAssessment.level;
-            document.getElementById('frizzAdvice').textContent = frizzAssessment.advice;
-            
-            let locationText = '';
-            if (locationInfo) {
-                locationText = `Location: ${locationInfo.name}`;
-                if (locationInfo.admin1) locationText += `, ${locationInfo.admin1}`;
-                if (locationInfo.country) locationText += `, ${locationInfo.country}`;
+            if (dewPoint > 60) {
+                explanation += `High dew point (${dewPoint}°F) means your ${hairType} hair will absorb extra moisture and get more volume.`;
+            } else if (dewPoint < 45) {
+                explanation += `Low dew point (${dewPoint}°F) means dry air that may pull moisture from your ${hairType} hair.`;
             } else {
-                locationText = `Coordinates: ${data.latitude}°, ${data.longitude}°`;
+                explanation += `Moderate dew point (${dewPoint}°F) creates balanced conditions for your ${hairType} hair.`;
             }
-            document.getElementById('locationInfo').textContent = locationText;
             
-            const updateTime = new Date(current.time).toLocaleString();
-            document.getElementById('updateTime').textContent = `Last updated: ${updateTime}`;
-            
-            updateHairTips();
-            document.getElementById('weatherDisplay').classList.add('show');
+            return explanation;
+        }
 
-            // Clear any existing forecast data since location might have changed
-            forecastWeatherData = null;
-            
-            // If user is currently on the weekly tab, fetch forecast
-            const weeklyTab = document.getElementById('weekly-tab');
-            if (weeklyTab && weeklyTab.classList.contains('active')) {
-                fetchForecastData();
+        function getWeatherIcon(condition) {
+            const icons = {
+                'Clear': '☀️',
+                'Clouds': '☁️',
+                'Rain': '🌧️',
+                'Snow': '❄️',
+                'Thunderstorm': '⛈️',
+                'Drizzle': '🌦️',
+                'Mist': '🌫️',
+                'Fog': '🌫️'
+            };
+            return icons[condition] || '🌤️';
+        }
+
+        // Tab and Day Switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+
+            if (tab === 'planning' && forecastData) {
+                updatePlanningView();
             }
         }
 
-        document.getElementById('locationInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                getWeatherByLocation();
-            }
-        });
+        function switchDay(dayIndex) {
+            currentDay = dayIndex;
+            
+            // Update day buttons
+            document.querySelectorAll('.day-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`day-${dayIndex}`).classList.add('active');
+            
+            updatePlanningCards(dayIndex);
+        }
 
-        // Close modal when clicking outside
-        document.getElementById('profileModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeProfileModal();
-            }
-        });
+        function updatePlanningView() {
+            if (!forecastData) return;
 
-        window.addEventListener('load', () => {
-            console.log('Page loaded, testing API connectivity...');
-            loadHairProfile();
-            initializeForecastUI();
-            testAPIConnectivity();
-            setTimeout(() => {
-                getWeatherByLocation();
-            }, 1000);
-        });
-
-        async function testAPIConnectivity() {
-            try {
-                console.log('Testing Open-Meteo API...');
-                const testUrl = 'https://api.open-meteo.com/v1/forecast?latitude=38.58&longitude=-121.49&current=temperature_2m&temperature_unit=fahrenheit';
-                const response = await fetch(testUrl);
-                console.log('API Test Response Status:', response.status);
-                if (response.ok) {
-                    console.log('✅ Open-Meteo API is accessible');
+            // Update day button labels with actual dates
+            forecastData.forEach((day, index) => {
+                const button = document.getElementById(`day-${index}`);
+                if (index === 0) {
+                    button.textContent = 'Today';
+                } else if (index === 1) {
+                    button.textContent = 'Tomorrow';
                 } else {
-                    console.log('❌ Open-Meteo API returned error:', response.status);
+                    const date = new Date();
+                    date.setDate(date.getDate() + index);
+                    button.textContent = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                 }
-            } catch (error) {
-                console.error('❌ API connectivity test failed:', error);
+            });
+
+            updatePlanningCards(currentDay);
+        }
+
+        function updatePlanningCards(dayIndex) {
+            if (!forecastData || !forecastData[dayIndex]) return;
+
+            const dayData = forecastData[dayIndex];
+            const dewPoint = Math.round(FrizzballKnowledge.calculateDewPoint(dayData.temp, dayData.humidity));
+            const frizzRisk = FrizzballKnowledge.getFrizzRisk(dayData.humidity, dewPoint, hairProfile.curlType);
+            const tips = FrizzballKnowledge.getPersonalizedTips(
+                { temp: dayData.temp, humidity: dayData.humidity, feels_like: dayData.temp },
+                hairProfile.curlType,
+                hairProfile.porosity
+            );
+
+            const planningCards = document.getElementById('planning-cards');
+            planningCards.innerHTML = `
+                <div class="card weather-card">
+                    <div class="weather-icon">${getWeatherIcon(dayData.condition)}</div>
+                    <div class="temperature">${dayData.temp}°F</div>
+                    <div class="description">${dayData.description.charAt(0).toUpperCase() + dayData.description.slice(1)}</div>
+                </div>
+
+                <div class="card frizz-card">
+                    <div class="frizz-risk ${frizzRisk.color}">${frizzRisk.icon} ${frizzRisk.level.charAt(0).toUpperCase() + frizzRisk.level.slice(1)} Frizz Risk</div>
+                    <p>${getHumidityExplanation(dayData.humidity, dewPoint, hairProfile.curlType)}</p>
+                </div>
+
+                <div class="card humidity-card">
+                    <h3>🌊 Humidity Insights for ${dayData.dayName}</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value">${dayData.humidity}%</div>
+                            <div class="stat-label">Humidity</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${dewPoint}°F</div>
+                            <div class="stat-label">Dew Point</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card tips-card">
+                    <div class="tips-header" onclick="togglePlanningTips(${dayIndex})">
+                        <h3>💡 ${dayData.dayName}'s Hair Strategy</h3>
+                        <button class="expand-button" id="planning-expand-${dayIndex}">▼</button>
+                    </div>
+                    <div class="tips-content expanded" id="planning-tips-${dayIndex}">
+                        ${formatPlanningTips(tips, dayIndex)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatPlanningTips(tips, dayIndex) {
+            let html = '';
+            
+            if (tips.techniques.length > 0) {
+                html += '<div class="tip-section"><h4>Technique Planning:</h4>';
+                tips.techniques.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.products.length > 0) {
+                html += '<div class="tip-section"><h4>Product Prep:</h4>';
+                tips.products.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.styling.length > 0) {
+                html += '<div class="tip-section"><h4>Styling Strategy:</h4>';
+                tips.styling.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function togglePlanningTips(dayIndex) {
+            const content = document.getElementById(`planning-tips-${dayIndex}`);
+            const button = document.getElementById(`planning-expand-${dayIndex}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                content.style.display = 'none';
+                button.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                content.style.display = 'block';
+                button.textContent = '▲';
             }
         }
+
+        function toggleTips() {
+            const content = document.getElementById('tips-content');
+            const button = document.getElementById('expand-btn');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                content.style.display = 'none';
+                button.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                content.style.display = 'block';
+                button.textContent = '▲';
+            }
+        }
+
+        // Hair Profile Functions
+        function openHairProfile() {
+            document.getElementById('hair-modal').style.display = 'block';
+        }
+
+        function closeHairProfile() {
+            document.getElementById('hair-modal').style.display = 'none';
+        }
+
+        function saveHairProfile() {
+            const curlTypeSelected = document.querySelector('#curlType .quiz-option.selected');
+            const porositySelected = document.querySelector('#porosity .quiz-option.selected');
+
+            if (curlTypeSelected) {
+                hairProfile.curlType = curlTypeSelected.dataset.value;
+            }
+            if (porositySelected) {
+                hairProfile.porosity = porositySelected.dataset.value;
+            }
+
+            // Update avatar display
+            document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+
+            // Save to localStorage
+            localStorage.setItem('frizzball-hair-profile', JSON.stringify(hairProfile));
+
+            // Refresh weather display if we have data
+            if (currentWeatherData) {
+                updateWeatherDisplay();
+            }
+            if (forecastData) {
+                updatePlanningView();
+            }
+
+            closeHairProfile();
+        }
+
+        function getHairTypeDescription(type) {
+            const descriptions = {
+                '1A': 'Straight', '1B': 'Straight', '1C': 'Straight',
+                '2A': 'Wavy', '2B': 'Wavy', '2C': 'Wavy',
+                '3A': 'Curly', '3B': 'Curly', '3C': 'Curly',
+                '4A': 'Coily', '4B': 'Coily', '4C': 'Coily'
+            };
+            return descriptions[type] || 'Curly';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved hair profile
+            const saved = localStorage.getItem('frizzball-hair-profile');
+            if (saved) {
+                hairProfile = JSON.parse(saved);
+                document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+            }
+
+            // Add quiz option selection handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('quiz-option')) {
+                    const parent = e.target.parentElement;
+                    parent.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+
+            // Allow Enter key for location input
+            document.getElementById('locationInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    getWeatherByLocation();
+                }
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('hair-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeHairProfile();
+                }
+            });
+        });
     </script>
 </body>
 </html>
