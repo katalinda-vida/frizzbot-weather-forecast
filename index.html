@@ -84,40 +84,7 @@
             opacity: 0.8;
         }
 
-        .main-tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 25px;
-            padding: 5px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(10px);
-        }
 
-        .tab-button {
-            flex: 1;
-            padding: 12px 20px;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab-button.active {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-weight: bold;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
 
         .day-switcher {
             display: flex;
@@ -220,28 +187,7 @@
             color: white;
         }
 
-        .humidity-card .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
 
-        .stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
 
         .tips-card {
             position: relative;
@@ -447,75 +393,51 @@
             <button onclick="getCurrentLocation()">Use My Location</button>
         </div>
 
-        <!-- Main Tabs -->
-        <div class="main-tabs">
-            <button class="tab-button active" onclick="switchTab('today')">Today's Forecast</button>
-            <button class="tab-button" onclick="switchTab('planning')">3-Day Planning</button>
+        <!-- Day Switcher (Primary Navigation) -->
+        <div class="day-switcher">
+            <button class="day-button active" onclick="switchDay(0)" id="day-0">Today</button>
+            <button class="day-button" onclick="switchDay(1)" id="day-1">Tomorrow</button>
+            <button class="day-button" onclick="switchDay(2)" id="day-2">Day 3</button>
         </div>
 
-        <!-- Today's Tab -->
-        <div id="today-tab" class="tab-content active">
-            <div class="weather-cards">
-                <div class="card weather-card" id="weather-display">
-                    <div class="weather-icon">🌤️</div>
-                    <div class="temperature">--°F</div>
-                    <div class="description">Enter location for weather</div>
-                    <div class="feels-like">Feels like --°F</div>
-                </div>
-
-                <div class="card frizz-card" id="frizz-display">
-                    <div class="frizz-risk risk-low">🌿 Low Frizz Risk</div>
-                    <p>Perfect weather for your hair! Great day for air drying.</p>
-                </div>
-
-                <div class="card humidity-card">
-                    <h3>🌊 Humidity Insights</h3>
-                    <div class="stats">
-                        <div class="stat">
-                            <div class="stat-value" id="humidity-val">--%</div>
-                            <div class="stat-label">Humidity</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="dewpoint-val">--°F</div>
-                            <div class="stat-label">Dew Point</div>
-                        </div>
-                    </div>
-                    <p id="humidity-explanation">Get weather data to see how humidity affects your hair!</p>
-                </div>
-
-                <div class="card tips-card">
-                    <div class="tips-header" onclick="toggleTips()">
-                        <h3>💡 Today's Hair Tips</h3>
-                        <button class="expand-button" id="expand-btn">▼</button>
-                    </div>
-                    <div class="tips-content" id="tips-content">
-                        <div class="tip-section">
-                            <h4>Recommended Techniques:</h4>
-                            <p>Perfect weather for the plopping method - wrap wet curls in a cotton t-shirt for 20 minutes!</p>
-                        </div>
-                        <div class="tip-section">
-                            <h4>Product Timing:</h4>
-                            <p>Apply leave-in conditioner to damp hair, then scrunch with gel for definition.</p>
-                        </div>
-                        <div class="tip-section">
-                            <h4>Styling Approach:</h4>
-                            <p>Great day for air drying - your curls will thank you!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3-Day Planning Tab -->
-        <div id="planning-tab" class="tab-content">
-            <div class="day-switcher">
-                <button class="day-button active" onclick="switchDay(0)" id="day-0">Today</button>
-                <button class="day-button" onclick="switchDay(1)" id="day-1">Tomorrow</button>
-                <button class="day-button" onclick="switchDay(2)" id="day-2">Day 3</button>
+        <!-- Weather Cards (Default to Today) -->
+        <div class="weather-cards" id="weather-cards">
+            <div class="card weather-card" id="weather-display">
+                <div class="weather-icon">🌤️</div>
+                <div class="temperature">--°F</div>
+                <div class="description">Enter location for weather</div>
+                <div class="feels-like">Feels like --°F</div>
             </div>
 
-            <div class="weather-cards" id="planning-cards">
-                <!-- Cards will be populated by JavaScript -->
+            <div class="card frizz-card" id="frizz-display">
+                <div class="frizz-risk risk-low">🌿 Low Frizz Risk</div>
+                <p>Perfect weather for your hair! Great day for air drying.</p>
+            </div>
+
+            <div class="card humidity-card">
+                <h3 id="humidity-title">💧 --% Humidity | --°F Dew Point</h3>
+                <p id="humidity-explanation">Get weather data to see how humidity affects your hair!</p>
+            </div>
+
+            <div class="card tips-card">
+                <div class="tips-header" onclick="toggleTips()">
+                    <h3>💡 Hair Strategy</h3>
+                    <button class="expand-button" id="expand-btn">▼</button>
+                </div>
+                <div class="tips-content" id="tips-content">
+                    <div class="tip-section">
+                        <h4>Recommended Techniques:</h4>
+                        <p>Perfect weather for the plopping method - wrap wet curls in a cotton t-shirt for 20 minutes!</p>
+                    </div>
+                    <div class="tip-section">
+                        <h4>Product Timing:</h4>
+                        <p>Apply leave-in conditioner to damp hair, then scrunch with gel for definition.</p>
+                    </div>
+                    <div class="tip-section">
+                        <h4>Styling Approach:</h4>
+                        <p>Great day for air drying - your curls will thank you!</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -786,7 +708,6 @@
                 forecastData = processForecastData(forecastRaw);
                 
                 updateWeatherDisplay();
-                updatePlanningView();
                 
             } catch (error) {
                 alert('Error getting weather data: ' + error.message);
@@ -883,7 +804,7 @@
             }
 
             if (tips.products.length > 0) {
-                html += '<div class="tip-section"><h4>Product Recommendations:</h4>';
+                html += '<div class="tip-section"><h4>Product Strategy:</h4>';
                 tips.products.forEach(tip => {
                     html += `<p>${tip}</p>`;
                 });
@@ -902,14 +823,20 @@
         }
 
         function getHumidityExplanation(humidity, dewPoint, hairType) {
+            // Practical explanation of humidity
             let explanation = `Air is holding ${humidity}% of possible moisture. `;
             
-            if (dewPoint > 60) {
-                explanation += `High dew point (${dewPoint}°F) means your ${hairType} hair will absorb extra moisture and get more volume.`;
-            } else if (dewPoint < 45) {
-                explanation += `Low dew point (${dewPoint}°F) means dry air that may pull moisture from your ${hairType} hair.`;
+            // Dew point insight + hair type specific impact
+            if (dewPoint > 65) {
+                explanation += `High dew point (${dewPoint}°F) means your ${hairType} hair will absorb lots of extra moisture and get maximum volume and definition.`;
+            } else if (dewPoint > 60) {
+                explanation += `Dew point ${dewPoint}°F means your ${hairType} hair will absorb extra moisture and get more volume.`;
+            } else if (dewPoint > 55) {
+                explanation += `Moderate dew point (${dewPoint}°F) creates balanced conditions for your ${hairType} hair with some moisture absorption.`;
+            } else if (dewPoint > 45) {
+                explanation += `Lower dew point (${dewPoint}°F) means less moisture available - your ${hairType} hair may need extra hydration today.`;
             } else {
-                explanation += `Moderate dew point (${dewPoint}°F) creates balanced conditions for your ${hairType} hair.`;
+                explanation += `Low dew point (${dewPoint}°F) means very dry air that will pull moisture from your ${hairType} hair - focus on moisture retention.`;
             }
             
             return explanation;
@@ -1025,50 +952,7 @@
             `;
         }
 
-        function formatPlanningTips(tips, dayIndex) {
-            let html = '';
-            
-            if (tips.techniques.length > 0) {
-                html += '<div class="tip-section"><h4>Technique Planning:</h4>';
-                tips.techniques.forEach(tip => {
-                    html += `<p>${tip}</p>`;
-                });
-                html += '</div>';
-            }
 
-            if (tips.products.length > 0) {
-                html += '<div class="tip-section"><h4>Product Prep:</h4>';
-                tips.products.forEach(tip => {
-                    html += `<p>${tip}</p>`;
-                });
-                html += '</div>';
-            }
-
-            if (tips.styling.length > 0) {
-                html += '<div class="tip-section"><h4>Styling Strategy:</h4>';
-                tips.styling.forEach(tip => {
-                    html += `<p>${tip}</p>`;
-                });
-                html += '</div>';
-            }
-
-            return html;
-        }
-
-        function togglePlanningTips(dayIndex) {
-            const content = document.getElementById(`planning-tips-${dayIndex}`);
-            const button = document.getElementById(`planning-expand-${dayIndex}`);
-            
-            if (content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                content.style.display = 'none';
-                button.textContent = '▼';
-            } else {
-                content.classList.add('expanded');
-                content.style.display = 'block';
-                button.textContent = '▲';
-            }
-        }
 
         function toggleTips() {
             const content = document.getElementById('tips-content');
@@ -1114,9 +998,6 @@
             // Refresh weather display if we have data
             if (currentWeatherData) {
                 updateWeatherDisplay();
-            }
-            if (forecastData) {
-                updatePlanningView();
             }
 
             closeHairProfile();
