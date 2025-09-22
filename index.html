@@ -691,6 +691,8 @@
 
         async function getWeatherByCoords(lat, lon) {
             try {
+                console.log('Getting weather for coordinates:', lat, lon);
+                
                 // Get both current weather and forecast
                 const [currentResponse, forecastResponse] = await Promise.all([
                     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
@@ -698,18 +700,24 @@
                 ]);
 
                 if (!currentResponse.ok || !forecastResponse.ok) {
-                    throw new Error('Weather data unavailable');
+                    throw new Error(`Weather API error: ${currentResponse.status} / ${forecastResponse.status}`);
                 }
 
                 currentWeatherData = await currentResponse.json();
                 const forecastRaw = await forecastResponse.json();
                 
+                console.log('Current weather data:', currentWeatherData);
+                console.log('Forecast data:', forecastRaw);
+                
                 // Process forecast data
                 forecastData = processForecastData(forecastRaw);
+                
+                console.log('Processed forecast:', forecastData);
                 
                 updateWeatherDisplay();
                 
             } catch (error) {
+                console.error('Weather error details:', error);
                 alert('Error getting weather data: ' + error.message);
             }
         }
@@ -792,6 +800,7 @@
 
         function updateTipsDisplay(tips) {
             const tipsContent = document.getElementById('tips-content');
+            if (!tipsContent) return; // Safety check
             
             let html = '';
             
@@ -1015,11 +1024,31 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing Frizzball...');
+            
+            // Check if required elements exist
+            const requiredElements = [
+                '.weather-icon', '.temperature', '.description', '.feels-like',
+                '#humidity-title', '#humidity-explanation', '.frizz-risk', '#tips-content'
+            ];
+            
+            requiredElements.forEach(selector => {
+                const element = document.querySelector(selector) || document.getElementById(selector.replace('#', ''));
+                if (!element) {
+                    console.warn(`Required element not found: ${selector}`);
+                }
+            });
+            
             // Load saved hair profile
             const saved = localStorage.getItem('frizzball-hair-profile');
             if (saved) {
-                hairProfile = JSON.parse(saved);
-                document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+                try {
+                    hairProfile = JSON.parse(saved);
+                    document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+                    console.log('Loaded hair profile:', hairProfile);
+                } catch (error) {
+                    console.error('Error loading hair profile:', error);
+                }
             }
 
             // Add quiz option selection handlers
@@ -1032,18 +1061,26 @@
             });
 
             // Allow Enter key for location input
-            document.getElementById('locationInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    getWeatherByLocation();
-                }
-            });
+            const locationInput = document.getElementById('locationInput');
+            if (locationInput) {
+                locationInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        getWeatherByLocation();
+                    }
+                });
+            }
 
             // Close modal when clicking outside
-            document.getElementById('hair-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeHairProfile();
-                }
-            });
+            const hairModal = document.getElementById('hair-modal');
+            if (hairModal) {
+                hairModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeHairProfile();
+                    }
+                });
+            }
+            
+            console.log('Frizzball initialized successfully');
         });
     </script>
 </body>
