@@ -693,19 +693,30 @@
             try {
                 console.log('Getting weather for coordinates:', lat, lon);
                 
-                const currentResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`);
+                // Get both current weather and forecast
+                const [currentResponse, forecastResponse] = await Promise.all([
+                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
+                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`)
+                ]);
                 
-                if (!currentResponse.ok) {
-                    throw new Error(`Weather API error: ${currentResponse.status}`);
+                if (!currentResponse.ok || !forecastResponse.ok) {
+                    throw new Error(`Weather API error: ${currentResponse.status} / ${forecastResponse.status}`);
                 }
 
                 currentWeatherData = await currentResponse.json();
+                const forecastRaw = await forecastResponse.json();
+                
                 console.log('✅ WEATHER DATA RECEIVED:', currentWeatherData);
+                
+                // Process forecast data
+                forecastData = processForecastData(forecastRaw);
+                console.log('✅ FORECAST DATA PROCESSED:', forecastData);
                 
                 // DIRECT UPDATE - no complex functions
                 const temp = Math.round(currentWeatherData.main.temp);
                 const humidity = currentWeatherData.main.humidity;
                 const description = currentWeatherData.weather[0].description;
+                const feelsLike = Math.round(currentWeatherData.main.feels_like);
                 
                 console.log('⭐ SIMPLE UPDATE STARTING:', { temp, humidity, description });
                 
@@ -714,8 +725,6 @@
                 if (tempEl) {
                     tempEl.textContent = `${temp}°F`;
                     console.log('✅ Temperature updated to:', `${temp}°F`);
-                } else {
-                    console.error('❌ Temperature element not found');
                 }
                 
                 // Update description  
@@ -723,9 +732,40 @@
                 if (descEl) {
                     descEl.textContent = description.charAt(0).toUpperCase() + description.slice(1);
                     console.log('✅ Description updated to:', description);
-                } else {
-                    console.error('❌ Description element not found');
                 }
+                
+                // Update feels like
+                const feelsEl = document.querySelector('.feels-like');
+                if (feelsEl) {
+                    feelsEl.textContent = `Feels like ${feelsLike}°F`;
+                    console.log('✅ Feels like updated');
+                }
+                
+                // Update weather icon
+                const iconEl = document.querySelector('.weather-icon');
+                if (iconEl) {
+                    iconEl.textContent = getWeatherIcon(currentWeatherData.weather[0].main);
+                    console.log('✅ Icon updated');
+                }
+                
+                // Update humidity card with your requested format
+                const dewPoint = Math.round(temp - ((100 - humidity) / 5));
+                const humidityTitle = document.getElementById('humidity-title');
+                if (humidityTitle) {
+                    humidityTitle.textContent = `💧 ${humidity}% Humidity | ${dewPoint}°F Dew Point`;
+                    console.log('✅ Humidity title updated');
+                }
+                
+                // Update humidity explanation with your requested format
+                const humidityExp = document.getElementById('humidity-explanation');
+                if (humidityExp) {
+                    const explanation = getHumidityExplanation(humidity, dewPoint, hairProfile.curlType);
+                    humidityExp.textContent = `"${explanation}"`;
+                    console.log('✅ Humidity explanation updated');
+                }
+                
+                // Update day button labels
+                updateDayButtonLabels();
                 
                 console.log('⭐ SIMPLE UPDATE COMPLETE');
                 
