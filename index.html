@@ -411,7 +411,7 @@
 
             <div class="card frizz-card" id="frizz-display">
                 <div class="frizz-risk risk-low">🌿 Low Frizz Risk</div>
-                <p>Perfect weather for your hair! Great day for air drying.</p>
+                <p id="frizz-message">Perfect weather for your hair! Great day for air drying.</p>
             </div>
 
             <div class="card humidity-card">
@@ -507,6 +507,42 @@
             return icons[condition] || '🌤️';
         }
 
+        // FIX 1: Add the missing formatPlanningTips function
+        function formatPlanningTips(tips, dayIndex) {
+            let html = '';
+            
+            if (tips.techniques && tips.techniques.length > 0) {
+                html += '<div class="tip-section"><h4>Recommended Techniques:</h4>';
+                tips.techniques.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.products && tips.products.length > 0) {
+                html += '<div class="tip-section"><h4>Product Strategy:</h4>';
+                tips.products.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.styling && tips.styling.length > 0) {
+                html += '<div class="tip-section"><h4>Styling Approach:</h4>';
+                tips.styling.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.education) {
+                html += '<div class="tip-section"><h4>Hair Behavior Today:</h4>';
+                html += `<p>${tips.education}</p></div>`;
+            }
+
+            return html || '<p>Complete your hair profile for personalized tips!</p>';
+        }
+
         function processForecastData(forecastRaw) {
             console.log('Processing forecast data...');
             const dailyData = {};
@@ -574,6 +610,7 @@
             }
         }
 
+        // FIX 2: Update saveHairProfile to avoid errors
         function saveHairProfile() {
             console.log('Saving hair profile...');
             const curlTypeSelected = document.querySelector('#curlType .quiz-option.selected');
@@ -602,22 +639,25 @@
                 console.error('Error saving hair profile:', error);
             }
 
-            // Refresh weather display if we have data
+            // Close modal first
+            closeHairProfile();
+
+            // Then refresh display if we have weather data and are on the main view
             if (currentWeatherData) {
-                // Re-update the humidity explanation with new hair type
-                const humidity = currentWeatherData.main.humidity;
-                const temp = Math.round(currentWeatherData.main.temp);
-                const dewPoint = Math.round(temp - ((100 - humidity) / 5));
+                // Use the current day's data to update display
+                const dayData = currentDay === 0 ? 
+                    {
+                        temp: Math.round(currentWeatherData.main.temp),
+                        humidity: currentWeatherData.main.humidity,
+                        condition: currentWeatherData.weather[0].main,
+                        description: currentWeatherData.weather[0].description
+                    } : 
+                    forecastData && forecastData[currentDay] ? forecastData[currentDay] : null;
                 
-                const humidityExp = document.getElementById('humidity-explanation');
-                if (humidityExp) {
-                    const explanation = getHumidityExplanation(humidity, dewPoint, hairProfile.curlType);
-                    humidityExp.textContent = `"${explanation}"`;
-                    console.log('Updated humidity explanation with new hair type');
+                if (dayData) {
+                    updateDayDisplay(dayData);
                 }
             }
-
-            closeHairProfile();
         }
 
         function getHairTypeDescription(type) {
@@ -860,62 +900,21 @@
                 forecastData = processForecastData(forecastRaw);
                 console.log('✅ FORECAST DATA PROCESSED:', forecastData);
                 
-                // DIRECT UPDATE - no complex functions
-                const temp = Math.round(currentWeatherData.main.temp);
-                const humidity = currentWeatherData.main.humidity;
-                const description = currentWeatherData.weather[0].description;
-                const feelsLike = Math.round(currentWeatherData.main.feels_like);
-                
-                console.log('⭐ SIMPLE UPDATE STARTING:', { temp, humidity, description });
-                
-                // Update temperature
-                const tempEl = document.querySelector('.temperature');
-                if (tempEl) {
-                    tempEl.textContent = `${temp}°F`;
-                    console.log('✅ Temperature updated to:', `${temp}°F`);
-                }
-                
-                // Update description  
-                const descEl = document.querySelector('.description');
-                if (descEl) {
-                    descEl.textContent = description.charAt(0).toUpperCase() + description.slice(1);
-                    console.log('✅ Description updated to:', description);
-                }
-                
-                // Update feels like
-                const feelsEl = document.querySelector('.feels-like');
-                if (feelsEl) {
-                    feelsEl.textContent = `Feels like ${feelsLike}°F`;
-                    console.log('✅ Feels like updated');
-                }
-                
-                // Update weather icon
-                const iconEl = document.querySelector('.weather-icon');
-                if (iconEl) {
-                    iconEl.textContent = getWeatherIcon(currentWeatherData.weather[0].main);
-                    console.log('✅ Icon updated');
-                }
-                
-                // Update humidity card with your requested format
-                const dewPoint = Math.round(temp - ((100 - humidity) / 5));
-                const humidityTitle = document.getElementById('humidity-title');
-                if (humidityTitle) {
-                    humidityTitle.textContent = `💧 ${humidity}% Humidity | ${dewPoint}°F Dew Point`;
-                    console.log('✅ Humidity title updated');
-                }
-                
-                // Update humidity explanation with your requested format
-                const humidityExp = document.getElementById('humidity-explanation');
-                if (humidityExp) {
-                    const explanation = getHumidityExplanation(humidity, dewPoint, hairProfile.curlType);
-                    humidityExp.textContent = `"${explanation}"`;
-                    console.log('✅ Humidity explanation updated');
-                }
-                
                 // Update day button labels
                 updateDayButtonLabels();
                 
-                console.log('⭐ SIMPLE UPDATE COMPLETE');
+                // Display current weather
+                const dayData = {
+                    temp: Math.round(currentWeatherData.main.temp),
+                    humidity: currentWeatherData.main.humidity,
+                    condition: currentWeatherData.weather[0].main,
+                    description: currentWeatherData.weather[0].description,
+                    feels_like: Math.round(currentWeatherData.main.feels_like)
+                };
+                
+                updateDayDisplay(dayData);
+                
+                console.log('⭐ WEATHER UPDATE COMPLETE');
                 
             } catch (error) {
                 console.error('Weather error details:', error);
@@ -923,80 +922,71 @@
             }
         }
 
-        function processForecastData(forecastRaw) {
-            const dailyData = {};
+        // FIX 3: Create a unified update function for day display
+        function updateDayDisplay(weatherData) {
+            console.log('Updating display with:', weatherData);
             
-            forecastRaw.list.forEach(item => {
-                const date = new Date(item.dt * 1000).toDateString();
-                if (!dailyData[date]) {
-                    dailyData[date] = {
-                        temps: [],
-                        humidity: [],
-                        conditions: [],
-                        dt: item.dt,
-                        weather: item.weather[0]
-                    };
-                }
-                
-                dailyData[date].temps.push(item.main.temp);
-                dailyData[date].humidity.push(item.main.humidity);
-                dailyData[date].conditions.push(item.weather[0]);
-            });
+            // Update weather card with null checks
+            const tempEl = document.querySelector('.temperature');
+            if (tempEl) {
+                tempEl.textContent = `${weatherData.temp}°F`;
+            }
             
-            // Convert to array and take first 3 days
-            return Object.keys(dailyData).slice(0, 3).map((date, index) => {
-                const day = dailyData[date];
-                return {
-                    date: date,
-                    temp: Math.round(day.temps.reduce((a, b) => a + b) / day.temps.length),
-                    humidity: Math.round(day.humidity.reduce((a, b) => a + b) / day.humidity.length),
-                    condition: day.weather.main,
-                    description: day.weather.description,
-                    icon: day.weather.icon,
-                    dayName: index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : 'Day 3'
-                };
-            });
-        }
+            const descEl = document.querySelector('.description');
+            if (descEl) {
+                descEl.textContent = weatherData.description.charAt(0).toUpperCase() + weatherData.description.slice(1);
+            }
+            
+            const feelsEl = document.querySelector('.feels-like');
+            if (feelsEl && weatherData.feels_like) {
+                feelsEl.textContent = `Feels like ${weatherData.feels_like}°F`;
+            }
+            
+            const iconEl = document.querySelector('.weather-icon');
+            if (iconEl) {
+                iconEl.textContent = getWeatherIcon(weatherData.condition);
+            }
 
-        function updateWeatherDisplay() {
-            if (!currentWeatherData) return;
+            // Update humidity card
+            const dewPoint = Math.round(FrizzballKnowledge.calculateDewPoint(weatherData.temp, weatherData.humidity));
+            const humidityTitle = document.getElementById('humidity-title');
+            if (humidityTitle) {
+                humidityTitle.textContent = `💧 ${weatherData.humidity}% Humidity | ${dewPoint}°F Dew Point`;
+            }
+            
+            const humidityExp = document.getElementById('humidity-explanation');
+            if (humidityExp) {
+                const explanation = getHumidityExplanation(weatherData.humidity, dewPoint, hairProfile.curlType);
+                humidityExp.textContent = `"${explanation}"`;
+            }
 
-            const weather = currentWeatherData;
-            const temp = Math.round(weather.main.temp);
-            const feelsLike = Math.round(weather.main.feels_like);
-            const humidity = weather.main.humidity;
-            const description = weather.weather[0].description;
-            const icon = getWeatherIcon(weather.weather[0].main);
-
-            // Update weather card
-            document.querySelector('.weather-icon').textContent = icon;
-            document.querySelector('.temperature').textContent = `${temp}°F`;
-            document.querySelector('.description').textContent = description.charAt(0).toUpperCase() + description.slice(1);
-            document.querySelector('.feels-like').textContent = `Feels like ${feelsLike}°F`;
-
-            // Update humidity stats
-            const dewPoint = Math.round(FrizzballKnowledge.calculateDewPoint(temp, humidity));
-            document.getElementById('humidity-val').textContent = `${humidity}%`;
-            document.getElementById('dewpoint-val').textContent = `${dewPoint}°F`;
-
-            // Update frizz forecast
-            const frizzRisk = FrizzballKnowledge.getFrizzRisk(humidity, dewPoint, hairProfile.curlType);
+            // Update frizz risk
+            const frizzRisk = FrizzballKnowledge.getFrizzRisk(weatherData.humidity, dewPoint, hairProfile.curlType);
             const frizzElement = document.querySelector('.frizz-risk');
-            frizzElement.className = `frizz-risk ${frizzRisk.color}`;
-            frizzElement.textContent = `${frizzRisk.icon} ${frizzRisk.level.charAt(0).toUpperCase() + frizzRisk.level.slice(1)} Frizz Risk`;
+            if (frizzElement) {
+                frizzElement.className = `frizz-risk ${frizzRisk.color}`;
+                frizzElement.textContent = `${frizzRisk.icon} ${frizzRisk.level.charAt(0).toUpperCase() + frizzRisk.level.slice(1)} Frizz Risk`;
+            }
+            
+            const frizzMessage = document.getElementById('frizz-message');
+            if (frizzMessage) {
+                if (frizzRisk.level === 'low') {
+                    frizzMessage.textContent = 'Perfect weather for your hair! Great day for air drying.';
+                } else if (frizzRisk.level === 'moderate') {
+                    frizzMessage.textContent = 'Some frizz possible. Use your regular styling products.';
+                } else {
+                    frizzMessage.textContent = 'High frizz potential. Use anti-frizz products and avoid touching hair.';
+                }
+            }
 
-            // Update personalized tips
+            // Update tips
             const tips = FrizzballKnowledge.getPersonalizedTips(
-                { temp, humidity, feels_like: feelsLike },
+                { temp: weatherData.temp, humidity: weatherData.humidity, feels_like: weatherData.feels_like || weatherData.temp },
                 hairProfile.curlType,
                 hairProfile.porosity
             );
-
+            
             updateTipsDisplay(tips);
-
-            // Update humidity explanation
-            const explanation = getHumidityExplanation(humidity, dewPoint, hairProfile.curlType);
-            document.getElementById('humidity-explanation').textContent = explanation;
         }
 
         function updateTipsDisplay(tips) {
@@ -1005,7 +995,7 @@
             
             let html = '';
             
-            if (tips.techniques.length > 0) {
+            if (tips.techniques && tips.techniques.length > 0) {
                 html += '<div class="tip-section"><h4>Recommended Techniques:</h4>';
                 tips.techniques.forEach(tip => {
                     html += `<p>${tip}</p>`;
@@ -1013,7 +1003,7 @@
                 html += '</div>';
             }
 
-            if (tips.products.length > 0) {
+            if (tips.products && tips.products.length > 0) {
                 html += '<div class="tip-section"><h4>Product Strategy:</h4>';
                 tips.products.forEach(tip => {
                     html += `<p>${tip}</p>`;
@@ -1021,7 +1011,7 @@
                 html += '</div>';
             }
 
-            if (tips.styling.length > 0) {
+            if (tips.styling && tips.styling.length > 0) {
                 html += '<div class="tip-section"><h4>Styling Approach:</h4>';
                 tips.styling.forEach(tip => {
                     html += `<p>${tip}</p>`;
@@ -1029,7 +1019,7 @@
                 html += '</div>';
             }
 
-            tipsContent.innerHTML = html;
+            tipsContent.innerHTML = html || '<div class="tip-section"><p>Complete your hair profile for personalized tips!</p></div>';
         }
 
         function getHumidityExplanation(humidity, dewPoint, hairType) {
@@ -1052,207 +1042,66 @@
             return explanation;
         }
 
-        function getWeatherIcon(condition) {
-            const icons = {
-                'Clear': '☀️',
-                'Clouds': '☁️',
-                'Rain': '🌧️',
-                'Snow': '❄️',
-                'Thunderstorm': '⛈️',
-                'Drizzle': '🌦️',
-                'Mist': '🌫️',
-                'Fog': '🌫️'
-            };
-            return icons[condition] || '🌤️';
-        }
-
-        // Tab and Day Switching
-        function switchTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`${tab}-tab`).classList.add('active');
-
-            if (tab === 'planning' && forecastData) {
-                updatePlanningView();
-            }
-        }
-
+        // FIX 4: Update switchDay to properly handle day switching
         function switchDay(dayIndex) {
+            console.log('=== SWITCHING TO DAY', dayIndex, '===');
             currentDay = dayIndex;
             
             // Update day buttons
             document.querySelectorAll('.day-button').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`day-${dayIndex}`).classList.add('active');
             
-            updatePlanningCards(dayIndex);
+            // Get the appropriate data for the selected day
+            let dayData;
+            
+            if (dayIndex === 0 && currentWeatherData) {
+                // Today - use current weather
+                dayData = {
+                    temp: Math.round(currentWeatherData.main.temp),
+                    humidity: currentWeatherData.main.humidity,
+                    condition: currentWeatherData.weather[0].main,
+                    description: currentWeatherData.weather[0].description,
+                    feels_like: Math.round(currentWeatherData.main.feels_like)
+                };
+            } else if (forecastData && forecastData[dayIndex]) {
+                // Tomorrow or Day 3 - use forecast data
+                dayData = forecastData[dayIndex];
+            } else {
+                console.log('No data available for day', dayIndex);
+                return;
+            }
+            
+            console.log('Day data:', dayData);
+            
+            // Update the display with the selected day's data
+            updateDayDisplay(dayData);
+            
+            console.log('=== DAY SWITCH COMPLETE ===');
         }
-
-        function updatePlanningView() {
-            if (!forecastData) return;
-
-            // Update day button labels with actual dates
-            forecastData.forEach((day, index) => {
-                const button = document.getElementById(`day-${index}`);
-                if (index === 0) {
-                    button.textContent = 'Today';
-                } else if (index === 1) {
-                    button.textContent = 'Tomorrow';
-                } else {
-                    const date = new Date();
-                    date.setDate(date.getDate() + index);
-                    button.textContent = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                }
-            });
-
-            updatePlanningCards(currentDay);
-        }
-
-        function updatePlanningCards(dayIndex) {
-            if (!forecastData || !forecastData[dayIndex]) return;
-
-            const dayData = forecastData[dayIndex];
-            const dewPoint = Math.round(FrizzballKnowledge.calculateDewPoint(dayData.temp, dayData.humidity));
-            const frizzRisk = FrizzballKnowledge.getFrizzRisk(dayData.humidity, dewPoint, hairProfile.curlType);
-            const tips = FrizzballKnowledge.getPersonalizedTips(
-                { temp: dayData.temp, humidity: dayData.humidity, feels_like: dayData.temp },
-                hairProfile.curlType,
-                hairProfile.porosity
-            );
-
-            const planningCards = document.getElementById('planning-cards');
-            planningCards.innerHTML = `
-                <div class="card weather-card">
-                    <div class="weather-icon">${getWeatherIcon(dayData.condition)}</div>
-                    <div class="temperature">${dayData.temp}°F</div>
-                    <div class="description">${dayData.description.charAt(0).toUpperCase() + dayData.description.slice(1)}</div>
-                </div>
-
-                <div class="card frizz-card">
-                    <div class="frizz-risk ${frizzRisk.color}">${frizzRisk.icon} ${frizzRisk.level.charAt(0).toUpperCase() + frizzRisk.level.slice(1)} Frizz Risk</div>
-                    <p>${getHumidityExplanation(dayData.humidity, dewPoint, hairProfile.curlType)}</p>
-                </div>
-
-                <div class="card humidity-card">
-                    <h3>🌊 Humidity Insights for ${dayData.dayName}</h3>
-                    <div class="stats">
-                        <div class="stat">
-                            <div class="stat-value">${dayData.humidity}%</div>
-                            <div class="stat-label">Humidity</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">${dewPoint}°F</div>
-                            <div class="stat-label">Dew Point</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card tips-card">
-                    <div class="tips-header" onclick="togglePlanningTips(${dayIndex})">
-                        <h3>💡 ${dayData.dayName}'s Hair Strategy</h3>
-                        <button class="expand-button" id="planning-expand-${dayIndex}">▼</button>
-                    </div>
-                    <div class="tips-content expanded" id="planning-tips-${dayIndex}">
-                        ${formatPlanningTips(tips, dayIndex)}
-                    </div>
-                </div>
-            `;
-        }
-
-
 
         function toggleTips() {
+            console.log('Toggling tips...');
             const content = document.getElementById('tips-content');
             const button = document.getElementById('expand-btn');
             
-            if (content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                content.style.display = 'none';
-                button.textContent = '▼';
-            } else {
-                content.classList.add('expanded');
-                content.style.display = 'block';
-                button.textContent = '▲';
+            if (content && button) {
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                    content.classList.add('expanded');
+                    button.textContent = '▲';
+                    console.log('Tips expanded');
+                } else {
+                    content.style.display = 'none';
+                    content.classList.remove('expanded');
+                    button.textContent = '▼';
+                    console.log('Tips collapsed');
+                }
             }
-        }
-
-        // Hair Profile Functions
-        function openHairProfile() {
-            document.getElementById('hair-modal').style.display = 'block';
-        }
-
-        function closeHairProfile() {
-            document.getElementById('hair-modal').style.display = 'none';
-        }
-
-        function saveHairProfile() {
-            const curlTypeSelected = document.querySelector('#curlType .quiz-option.selected');
-            const porositySelected = document.querySelector('#porosity .quiz-option.selected');
-
-            if (curlTypeSelected) {
-                hairProfile.curlType = curlTypeSelected.dataset.value;
-            }
-            if (porositySelected) {
-                hairProfile.porosity = porositySelected.dataset.value;
-            }
-
-            // Update avatar display
-            document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
-
-            // Save to localStorage
-            localStorage.setItem('frizzball-hair-profile', JSON.stringify(hairProfile));
-
-            // Refresh weather display if we have data
-            if (currentWeatherData) {
-                updateWeatherDisplay();
-            }
-
-            closeHairProfile();
-        }
-
-        function getHairTypeDescription(type) {
-            const descriptions = {
-                '1A': 'Straight', '1B': 'Straight', '1C': 'Straight',
-                '2A': 'Wavy', '2B': 'Wavy', '2C': 'Wavy',
-                '3A': 'Curly', '3B': 'Curly', '3C': 'Curly',
-                '4A': 'Coily', '4B': 'Coily', '4C': 'Coily'
-            };
-            return descriptions[type] || 'Curly';
         }
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing Frizzball...');
-            
-            // BASIC DOM STRUCTURE CHECK
-            console.log('=== BASIC DOM CHECK ON PAGE LOAD ===');
-            const criticalElements = [
-                '.weather-icon',
-                '.temperature', 
-                '.description',
-                '.feels-like',
-                '#humidity-title',
-                '#humidity-explanation',
-                '.frizz-risk',
-                '#tips-content'
-            ];
-            
-            criticalElements.forEach(selector => {
-                const element = selector.startsWith('#') 
-                    ? document.getElementById(selector.substring(1))
-                    : document.querySelector(selector);
-                console.log(`DOM CHECK - ${selector}:`, !!element);
-                if (!element) {
-                    console.error(`❌ MISSING ON LOAD: ${selector}`);
-                } else {
-                    console.log(`✅ FOUND ON LOAD: ${selector}`);
-                }
-            });
-            
-            console.log('=== END DOM CHECK ===');
             
             // Load saved hair profile
             const saved = localStorage.getItem('frizzball-hair-profile');
@@ -1305,8 +1154,6 @@
                     console.log('Hair avatar clicked');
                     openHairProfile();
                 });
-            } else {
-                console.error('❌ hair-avatar not found');
             }
 
             // Location input Enter key
@@ -1317,8 +1164,6 @@
                         getWeatherByLocation();
                     }
                 });
-            } else {
-                console.error('❌ locationInput not found');
             }
 
             // Hair modal click outside to close
@@ -1329,8 +1174,6 @@
                         closeHairProfile();
                     }
                 });
-            } else {
-                console.error('❌ hair-modal not found');
             }
 
             // Tips toggle functionality
@@ -1340,8 +1183,6 @@
                     console.log('Tips header clicked');
                     toggleTips();
                 });
-            } else {
-                console.error('❌ tips-header not found');
             }
 
             // Save Profile button handler
@@ -1356,27 +1197,6 @@
 
             console.log('Event listeners set up successfully');
         }
-
-        function toggleTips() {
-            console.log('Toggling tips...');
-            const content = document.getElementById('tips-content');
-            const button = document.getElementById('expand-btn');
-            
-            if (content && button) {
-                if (content.style.display === 'none' || content.style.display === '') {
-                    content.style.display = 'block';
-                    content.classList.add('expanded');
-                    button.textContent = '▲';
-                    console.log('Tips expanded');
-                } else {
-                    content.style.display = 'none';
-                    content.classList.remove('expanded');
-                    button.textContent = '▼';
-                    console.log('Tips collapsed');
-                }
-            }
-        }
     </script>
 </body>
 </html>
-
