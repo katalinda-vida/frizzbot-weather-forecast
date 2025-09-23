@@ -1026,25 +1026,53 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing Frizzball...');
             
-            // Check if required elements exist
-            const requiredElements = [
-                '.weather-icon', '.temperature', '.description', '.feels-like',
-                '#humidity-title', '#humidity-explanation', '.frizz-risk', '#tips-content'
+            // BASIC DOM STRUCTURE CHECK
+            console.log('=== BASIC DOM CHECK ON PAGE LOAD ===');
+            const criticalElements = [
+                '.weather-icon',
+                '.temperature', 
+                '.description',
+                '.feels-like',
+                '#humidity-title',
+                '#humidity-explanation',
+                '.frizz-risk',
+                '#tips-content'
             ];
             
-            requiredElements.forEach(selector => {
-                const element = document.querySelector(selector) || document.getElementById(selector.replace('#', ''));
+            criticalElements.forEach(selector => {
+                const element = selector.startsWith('#') 
+                    ? document.getElementById(selector.substring(1))
+                    : document.querySelector(selector);
+                console.log(`DOM CHECK - ${selector}:`, !!element);
                 if (!element) {
-                    console.warn(`Required element not found: ${selector}`);
+                    console.error(`❌ MISSING ON LOAD: ${selector}`);
+                } else {
+                    console.log(`✅ FOUND ON LOAD: ${selector}`);
                 }
             });
+            
+            // Check if main container exists
+            const weatherCards = document.getElementById('weather-cards');
+            console.log('Main weather-cards container:', !!weatherCards);
+            
+            // Print the actual HTML of the weather-cards container
+            if (weatherCards) {
+                console.log('weather-cards HTML:', weatherCards.innerHTML.substring(0, 500) + '...');
+            } else {
+                console.error('❌ weather-cards container not found!');
+            }
+            
+            console.log('=== END DOM CHECK ===');
             
             // Load saved hair profile
             const saved = localStorage.getItem('frizzball-hair-profile');
             if (saved) {
                 try {
                     hairProfile = JSON.parse(saved);
-                    document.getElementById('avatar-type').textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+                    const avatarType = document.getElementById('avatar-type');
+                    if (avatarType) {
+                        avatarType.textContent = `${hairProfile.curlType} ${getHairTypeDescription(hairProfile.curlType)}`;
+                    }
                     console.log('Loaded hair profile:', hairProfile);
                 } catch (error) {
                     console.error('Error loading hair profile:', error);
@@ -1068,6 +1096,8 @@
                         getWeatherByLocation();
                     }
                 });
+            } else {
+                console.error('❌ locationInput not found');
             }
 
             // Close modal when clicking outside
@@ -1078,6 +1108,8 @@
                         closeHairProfile();
                     }
                 });
+            } else {
+                console.error('❌ hair-modal not found');
             }
             
             console.log('Frizzball initialized successfully');
