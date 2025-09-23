@@ -377,7 +377,7 @@
                 <h1>Frizzball</h1>
                 <p>Smart weather forecast for all hair types</p>
             </div>
-            <div class="hair-avatar" onclick="openHairProfile()">
+            <div class="hair-avatar" id="hair-avatar">
                 <div class="avatar-icon">🌀</div>
                 <div class="avatar-text">
                     <div class="name">Your Hair</div>
@@ -395,9 +395,9 @@
 
         <!-- Day Switcher (Primary Navigation) -->
         <div class="day-switcher">
-            <button class="day-button active" onclick="switchDay(0)" id="day-0">Today</button>
-            <button class="day-button" onclick="switchDay(1)" id="day-1">Tomorrow</button>
-            <button class="day-button" onclick="switchDay(2)" id="day-2">Day 3</button>
+            <button class="day-button active" id="day-0">Today</button>
+            <button class="day-button" id="day-1">Tomorrow</button>
+            <button class="day-button" id="day-2">Day 3</button>
         </div>
 
         <!-- Weather Cards (Default to Today) -->
@@ -420,7 +420,7 @@
             </div>
 
             <div class="card tips-card">
-                <div class="tips-header" onclick="toggleTips()">
+                <div class="tips-header" id="tips-header">
                     <h3>💡 Hair Strategy</h3>
                     <button class="expand-button" id="expand-btn">▼</button>
                 </div>
@@ -1252,17 +1252,6 @@
                 }
             });
             
-            // Check if main container exists
-            const weatherCards = document.getElementById('weather-cards');
-            console.log('Main weather-cards container:', !!weatherCards);
-            
-            // Print the actual HTML of the weather-cards container
-            if (weatherCards) {
-                console.log('weather-cards HTML:', weatherCards.innerHTML.substring(0, 500) + '...');
-            } else {
-                console.error('❌ weather-cards container not found!');
-            }
-            
             console.log('=== END DOM CHECK ===');
             
             // Load saved hair profile
@@ -1280,16 +1269,47 @@
                 }
             }
 
-            // Add quiz option selection handlers
+            // Set up all event listeners properly
+            setupEventListeners();
+            
+            console.log('Frizzball initialized successfully');
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Quiz option selection handlers
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('quiz-option')) {
                     const parent = e.target.parentElement;
                     parent.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
                     e.target.classList.add('selected');
+                    console.log('Quiz option selected:', e.target.textContent);
                 }
             });
 
-            // Allow Enter key for location input
+            // Day button click handlers - SET UP PROPERLY
+            const dayButtons = document.querySelectorAll('.day-button');
+            dayButtons.forEach((button, index) => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Day button clicked:', index);
+                    switchDay(index);
+                });
+            });
+
+            // Hair avatar click handler
+            const hairAvatar = document.getElementById('hair-avatar');
+            if (hairAvatar) {
+                hairAvatar.addEventListener('click', function() {
+                    console.log('Hair avatar clicked');
+                    openHairProfile();
+                });
+            } else {
+                console.error('❌ hair-avatar not found');
+            }
+
+            // Location input Enter key
             const locationInput = document.getElementById('locationInput');
             if (locationInput) {
                 locationInput.addEventListener('keypress', function(e) {
@@ -1301,7 +1321,7 @@
                 console.error('❌ locationInput not found');
             }
 
-            // Close modal when clicking outside
+            // Hair modal click outside to close
             const hairModal = document.getElementById('hair-modal');
             if (hairModal) {
                 hairModal.addEventListener('click', function(e) {
@@ -1312,9 +1332,51 @@
             } else {
                 console.error('❌ hair-modal not found');
             }
+
+            // Tips toggle functionality
+            const tipsHeader = document.getElementById('tips-header');
+            if (tipsHeader) {
+                tipsHeader.addEventListener('click', function() {
+                    console.log('Tips header clicked');
+                    toggleTips();
+                });
+            } else {
+                console.error('❌ tips-header not found');
+            }
+
+            // Save Profile button handler
+            const saveButton = document.querySelector('#hair-modal button[onclick="saveHairProfile()"]');
+            if (saveButton) {
+                saveButton.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('Save Profile button clicked');
+                    saveHairProfile();
+                };
+            }
+
+            console.log('Event listeners set up successfully');
+        }
+
+        function toggleTips() {
+            console.log('Toggling tips...');
+            const content = document.getElementById('tips-content');
+            const button = document.getElementById('expand-btn');
             
-            console.log('Frizzball initialized successfully');
-        });
+            if (content && button) {
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                    content.classList.add('expanded');
+                    button.textContent = '▲';
+                    console.log('Tips expanded');
+                } else {
+                    content.style.display = 'none';
+                    content.classList.remove('expanded');
+                    button.textContent = '▼';
+                    console.log('Tips collapsed');
+                }
+            }
+        }
     </script>
 </body>
 </html>
+
