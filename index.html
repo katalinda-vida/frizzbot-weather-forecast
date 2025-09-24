@@ -187,7 +187,35 @@
             color: white;
         }
 
-
+        .uv-card {
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .uv-level {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .uv-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .uv-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .uv-description {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
 
         .tips-card {
             position: relative;
@@ -419,6 +447,24 @@
                 <p id="humidity-explanation">Get weather data to see how humidity affects your hair!</p>
             </div>
 
+            <!-- UV Index Card (New) -->
+            <div class="card uv-card" id="uv-display" style="display: none;">
+                <h3 style="color: white; margin-bottom: 15px;">
+                    <span style="font-size: 1.5em;">☀️</span> UV Index
+                </h3>
+                <div class="uv-level">
+                    <div>
+                        <div class="uv-value" id="uv-value">--</div>
+                        <div class="uv-label" id="uv-label">--</div>
+                    </div>
+                    <div style="font-size: 3em;">☀️</div>
+                </div>
+                <div class="uv-description" id="uv-impact">
+                    <strong>UV Impact on Your Hair:</strong><br>
+                    Get weather data to see UV effects on frizz.
+                </div>
+            </div>
+
             <div class="card tips-card">
                 <div class="tips-header" id="tips-header">
                     <h3>💡 Hair Strategy</h3>
@@ -486,6 +532,7 @@
         // Global variables
         let currentWeatherData = null;
         let forecastData = null;
+        let currentUVData = null;
         let currentDay = 0;
         let hairProfile = {
             curlType: '3B',
@@ -505,6 +552,61 @@
                 'Fog': '🌫️'
             };
             return icons[condition] || '🌤️';
+        }
+
+        // UV Level interpretation function
+        function getUVLevel(uvIndex) {
+            if (uvIndex <= 2) return { level: 'Low', color: '#4CAF50' };
+            if (uvIndex <= 5) return { level: 'Moderate', color: '#FFEB3B' };
+            if (uvIndex <= 7) return { level: 'High', color: '#FF9800' };
+            if (uvIndex <= 10) return { level: 'Very High', color: '#FF5722' };
+            return { level: 'Extreme', color: '#9C27B0' };
+        }
+
+        // UV-based hair recommendations
+        function getUVRecommendations(uvIndex, hairType) {
+            const recommendations = {
+                low: [],
+                moderate: [
+                    "Apply leave-in conditioner with SPF",
+                    "Hydrate hair before sun exposure"
+                ],
+                high: [
+                    "Apply leave-in conditioner with UV filters",
+                    "Wear a hat during peak sun hours",
+                    "Use anti-frizz serum with UV protection"
+                ],
+                veryHigh: [
+                    "Essential: UV protection products",
+                    "Wear a hat or use protective styles",
+                    "Apply hair oil for barrier protection",
+                    "Deep condition tonight to repair damage"
+                ],
+                extreme: [
+                    "Maximum protection needed!",
+                    "Cover hair completely when outside",
+                    "Apply UV protection spray every 2 hours",
+                    "Use overnight repair mask"
+                ]
+            };
+            
+            // Add hair-type specific recommendations
+            if (hairType && hairType.startsWith('4')) { // Coily hair
+                if (uvIndex > 5) {
+                    recommendations.veryHigh.push("Extra moisture needed - UV depletes natural oils");
+                }
+            }
+            if (hairType && (hairType.startsWith('1') || hairType.startsWith('2'))) { // Straight/Wavy
+                if (uvIndex > 7) {
+                    recommendations.veryHigh.push("Fine hair is extra vulnerable - use silk scarf under hat");
+                }
+            }
+            
+            if (uvIndex <= 2) return recommendations.low;
+            if (uvIndex <= 5) return recommendations.moderate;
+            if (uvIndex <= 7) return recommendations.high;
+            if (uvIndex <= 10) return recommendations.veryHigh;
+            return recommendations.extreme;
         }
 
         // FIX 1: Add the missing formatPlanningTips function
@@ -530,6 +632,15 @@
             if (tips.styling && tips.styling.length > 0) {
                 html += '<div class="tip-section"><h4>Styling Approach:</h4>';
                 tips.styling.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            // Add UV Protection section if UV data exists
+            if (tips.uvProtection && tips.uvProtection.length > 0) {
+                html += '<div class="tip-section"><h4>UV Protection:</h4>';
+                tips.uvProtection.forEach(tip => {
                     html += `<p>${tip}</p>`;
                 });
                 html += '</div>';
@@ -650,7 +761,8 @@
                         temp: Math.round(currentWeatherData.main.temp),
                         humidity: currentWeatherData.main.humidity,
                         condition: currentWeatherData.weather[0].main,
-                        description: currentWeatherData.weather[0].description
+                        description: currentWeatherData.weather[0].description,
+                        uvIndex: currentUVData ? currentUVData : 0
                     } : 
                     forecastData && forecastData[currentDay] ? forecastData[currentDay] : null;
                 
@@ -747,7 +859,7 @@
                 }
             },
 
-            getPersonalizedTips: function(weatherData, hairType, porosity) {
+            getPersonalizedTips: function(weatherData, hairType, porosity, uvIndex) {
                 const humidity = weatherData.humidity;
                 const temp = weatherData.temp;
                 const dewPoint = this.calculateDewPoint(weatherData.temp, weatherData.humidity);
@@ -756,6 +868,7 @@
                     techniques: [],
                     products: [],
                     styling: [],
+                    uvProtection: [],
                     education: ""
                 };
 
@@ -799,6 +912,14 @@
                     tips.styling.push("Use heat protectant if blow drying");
                 }
 
+                // Add UV protection recommendations to Hair Strategy
+                if (uvIndex !== undefined && uvIndex > 0) {
+                    const uvRecs = getUVRecommendations(uvIndex, hairType);
+                    if (uvRecs && uvRecs.length > 0) {
+                        tips.uvProtection = uvRecs;
+                    }
+                }
+
                 return tips;
             },
 
@@ -807,16 +928,34 @@
                 return temp - ((100 - humidity) / 5);
             },
 
-            getFrizzRisk: function(humidity, dewPoint, hairType) {
+            getFrizzRisk: function(humidity, dewPoint, hairType, uvIndex) {
                 // Risk calculation based on hair type and weather
                 let riskScore = 0;
                 
-                if (humidity > 80) riskScore += 3;
-                else if (humidity > 60) riskScore += 2;
-                else if (humidity < 30) riskScore += 2;
+                // Humidity impact (40% weight)
+                if (humidity > 80) riskScore += 16;
+                else if (humidity > 70) riskScore += 12;
+                else if (humidity > 60) riskScore += 8;
+                else if (humidity > 50) riskScore += 4;
+                else if (humidity < 30) riskScore += 8;
                 
-                if (dewPoint > 60) riskScore += 2;
-                else if (dewPoint < 40) riskScore += 1;
+                // Dew point impact (30% weight)
+                if (dewPoint > 65) riskScore += 12;
+                else if (dewPoint > 60) riskScore += 9;
+                else if (dewPoint > 55) riskScore += 6;
+                else if (dewPoint > 50) riskScore += 3;
+                else if (dewPoint < 40) riskScore += 3;
+                
+                // UV impact (20% weight)
+                if (uvIndex !== undefined && uvIndex > 0) {
+                    if (uvIndex > 10) riskScore += 8;
+                    else if (uvIndex > 7) riskScore += 6;
+                    else if (uvIndex > 5) riskScore += 4;
+                    else if (uvIndex > 3) riskScore += 2;
+                }
+                
+                // Temperature impact (10% weight) - simplified for now
+                riskScore += 2;
                 
                 // Hair type multiplier
                 const typeMultipliers = {
@@ -828,8 +967,8 @@
                 
                 riskScore *= (typeMultipliers[hairType] || 1);
                 
-                if (riskScore <= 2) return { level: 'low', color: 'risk-low', icon: '🌿' };
-                if (riskScore <= 4) return { level: 'moderate', color: 'risk-moderate', icon: '⚠️' };
+                if (riskScore <= 20) return { level: 'low', color: 'risk-low', icon: '🌿' };
+                if (riskScore <= 40) return { level: 'moderate', color: 'risk-moderate', icon: '⚠️' };
                 return { level: 'high', color: 'risk-high', icon: '🚨' };
             }
         };
@@ -881,10 +1020,11 @@
             try {
                 console.log('Getting weather for coordinates:', lat, lon);
                 
-                // Get both current weather and forecast
-                const [currentResponse, forecastResponse] = await Promise.all([
+                // Get current weather, forecast, and UV data
+                const [currentResponse, forecastResponse, uvResponse] = await Promise.all([
                     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
-                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`)
+                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
+                    fetch(`https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608`)
                 ]);
                 
                 if (!currentResponse.ok || !forecastResponse.ok) {
@@ -893,6 +1033,15 @@
 
                 currentWeatherData = await currentResponse.json();
                 const forecastRaw = await forecastResponse.json();
+                
+                // Get UV data if available
+                if (uvResponse.ok) {
+                    const uvData = await uvResponse.json();
+                    currentUVData = uvData.value || 0;
+                    console.log('UV Index:', currentUVData);
+                } else {
+                    currentUVData = 0;
+                }
                 
                 console.log('✅ WEATHER DATA RECEIVED:', currentWeatherData);
                 
@@ -909,7 +1058,8 @@
                     humidity: currentWeatherData.main.humidity,
                     condition: currentWeatherData.weather[0].main,
                     description: currentWeatherData.weather[0].description,
-                    feels_like: Math.round(currentWeatherData.main.feels_like)
+                    feels_like: Math.round(currentWeatherData.main.feels_like),
+                    uvIndex: currentUVData
                 };
                 
                 updateDayDisplay(dayData);
@@ -960,8 +1110,47 @@
                 humidityExp.textContent = `"${explanation}"`;
             }
 
-            // Update frizz risk
-            const frizzRisk = FrizzballKnowledge.getFrizzRisk(weatherData.humidity, dewPoint, hairProfile.curlType);
+            // Update UV Index card
+            if (weatherData.uvIndex !== undefined && weatherData.uvIndex > 0) {
+                const uvCard = document.getElementById('uv-display');
+                if (uvCard) {
+                    uvCard.style.display = 'block';
+                    const uvLevel = getUVLevel(weatherData.uvIndex);
+                    uvCard.style.background = `linear-gradient(135deg, ${uvLevel.color}dd, ${uvLevel.color}99)`;
+                    
+                    const uvValue = document.getElementById('uv-value');
+                    const uvLabel = document.getElementById('uv-label');
+                    const uvImpact = document.getElementById('uv-impact');
+                    
+                    if (uvValue) uvValue.textContent = Math.round(weatherData.uvIndex);
+                    if (uvLabel) uvLabel.textContent = uvLevel.level;
+                    
+                    if (uvImpact) {
+                        let impactText = '<strong>UV Impact on Your Hair:</strong><br>';
+                        if (weatherData.uvIndex > 5) {
+                            impactText += 'High UV breaks down hair proteins & strips oils, significantly increasing frizz. Protection essential!';
+                        } else if (weatherData.uvIndex > 2) {
+                            impactText += 'Moderate UV can gradually damage hair cuticles. Some protection recommended for extended exposure.';
+                        } else {
+                            impactText += 'Low UV levels - minimal impact on frizz today.';
+                        }
+                        uvImpact.innerHTML = impactText;
+                    }
+                }
+            } else {
+                const uvCard = document.getElementById('uv-display');
+                if (uvCard) {
+                    uvCard.style.display = 'none';
+                }
+            }
+
+            // Update frizz risk (now includes UV)
+            const frizzRisk = FrizzballKnowledge.getFrizzRisk(
+                weatherData.humidity, 
+                dewPoint, 
+                hairProfile.curlType, 
+                weatherData.uvIndex || 0
+            );
             const frizzElement = document.querySelector('.frizz-risk');
             if (frizzElement) {
                 frizzElement.className = `frizz-risk ${frizzRisk.color}`;
@@ -979,11 +1168,12 @@
                 }
             }
 
-            // Update tips
+            // Update tips (now includes UV recommendations in Hair Strategy)
             const tips = FrizzballKnowledge.getPersonalizedTips(
                 { temp: weatherData.temp, humidity: weatherData.humidity, feels_like: weatherData.feels_like || weatherData.temp },
                 hairProfile.curlType,
-                hairProfile.porosity
+                hairProfile.porosity,
+                weatherData.uvIndex || 0
             );
             
             updateTipsDisplay(tips);
@@ -1017,6 +1207,20 @@
                     html += `<p>${tip}</p>`;
                 });
                 html += '</div>';
+            }
+
+            // Add UV Protection section to Hair Strategy
+            if (tips.uvProtection && tips.uvProtection.length > 0) {
+                html += '<div class="tip-section"><h4>UV Protection:</h4>';
+                tips.uvProtection.forEach(tip => {
+                    html += `<p>${tip}</p>`;
+                });
+                html += '</div>';
+            }
+
+            if (tips.education) {
+                html += '<div class="tip-section"><h4>Hair Behavior Today:</h4>';
+                html += `<p>${tips.education}</p></div>`;
             }
 
             tipsContent.innerHTML = html || '<div class="tip-section"><p>Complete your hair profile for personalized tips!</p></div>';
@@ -1061,11 +1265,15 @@
                     humidity: currentWeatherData.main.humidity,
                     condition: currentWeatherData.weather[0].main,
                     description: currentWeatherData.weather[0].description,
-                    feels_like: Math.round(currentWeatherData.main.feels_like)
+                    feels_like: Math.round(currentWeatherData.main.feels_like),
+                    uvIndex: currentUVData || 0
                 };
             } else if (forecastData && forecastData[dayIndex]) {
-                // Tomorrow or Day 3 - use forecast data
-                dayData = forecastData[dayIndex];
+                // Tomorrow or Day 3 - use forecast data (UV not available for future days from this API)
+                dayData = {
+                    ...forecastData[dayIndex],
+                    uvIndex: 0  // OpenWeather doesn't provide future UV in basic API
+                };
             } else {
                 console.log('No data available for day', dayIndex);
                 return;
