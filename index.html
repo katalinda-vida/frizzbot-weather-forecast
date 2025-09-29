@@ -1701,7 +1701,7 @@
             const button = document.getElementById('expand-btn');
             
             if (content && button) {
-                if (content.style.display === 'none' || content.style.display === '') {
+                if (content.style.display === 'none' || content.style.display === '' || !content.classList.contains('expanded')) {
                     content.style.display = 'block';
                     content.classList.add('expanded');
                     button.textContent = '▲';
@@ -1806,5 +1806,3 @@
     </script>
 </body>
 </html>
-
-
