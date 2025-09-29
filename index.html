@@ -135,7 +135,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 15px;
         }
 
         .half-card {
@@ -149,6 +148,24 @@
 
         .half-card:hover {
             transform: translateY(-2px);
+        }
+
+        /* Temperature card styling */
+        .temp-card {
+            text-align: center;
+            background: linear-gradient(135deg, #FFF9C4, #FFEB3B);
+        }
+
+        .temp-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #F57C00;
+            margin: 10px 0;
+        }
+
+        .temp-description {
+            font-size: 1em;
+            color: #666;
         }
 
         .weather-card {
@@ -189,39 +206,6 @@
             margin-bottom: 15px;
             padding: 10px 20px;
             border-radius: 25px;
-        }
-
-        .frizz-breakdown {
-            text-align: left;
-            background: rgba(0,0,0,0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-
-        .frizz-breakdown h4 {
-            color: #666;
-            font-size: 1em;
-            margin-bottom: 10px;
-        }
-
-        .frizz-factor {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            font-size: 0.95em;
-        }
-
-        .frizz-factor-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .frizz-factor-value {
-            font-weight: bold;
-            color: #667eea;
         }
 
         .risk-low {
@@ -298,31 +282,19 @@
             border-radius: 10px;
             padding: 10px;
             margin-top: 10px;
-            font-size: 0.85em;
+            font-size: 0.9em;
+            line-height: 1.4;
         }
 
-        .wind-impact h4 {
+        .wind-impact-title {
             font-size: 0.95em;
+            font-weight: bold;
             margin-bottom: 5px;
             color: #1976D2;
         }
 
-        .wind-impact ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .wind-impact li {
-            padding: 2px 0;
-            padding-left: 15px;
-            position: relative;
-        }
-
-        .wind-impact li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
+        .wind-impact-text {
+            color: #333;
         }
 
         /* UV card styling */
@@ -356,56 +328,6 @@
             border-radius: 10px;
             font-size: 0.85em;
             line-height: 1.3;
-        }
-
-        /* Sun times card styling */
-        .sun-card {
-            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
-        }
-
-        .sun-card h3 {
-            color: #E65100;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        .sun-times {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .sun-time {
-            text-align: center;
-        }
-
-        .sun-time-label {
-            font-size: 0.85em;
-            color: #666;
-        }
-
-        .sun-time-value {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #E65100;
-        }
-
-        .daylight-info {
-            text-align: center;
-            padding-top: 10px;
-            border-top: 1px solid rgba(230, 81, 0, 0.2);
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .peak-uv {
-            background: rgba(230, 81, 0, 0.1);
-            padding: 5px;
-            border-radius: 8px;
-            margin-top: 8px;
-            text-align: center;
-            font-size: 0.85em;
         }
 
         .tips-card {
@@ -596,7 +518,7 @@
                 padding: 12px;
             }
             
-            .wind-value, .humidity-value, .uv-value {
+            .wind-value, .humidity-value, .uv-value, .temp-value {
                 font-size: 1.5em;
             }
         }
@@ -633,28 +555,25 @@
             <button class="day-button" id="day-2">Day 3</button>
         </div>
 
-        <!-- Weather Cards (Default to Today) -->
+        <!-- Weather Cards -->
         <div class="weather-cards" id="weather-cards">
-            <div class="card weather-card" id="weather-display">
-                <div class="weather-icon">🌤️</div>
-                <div class="temperature">--°F</div>
-                <div class="description">Enter location for weather</div>
-                <div class="feels-like">Feels like --°F</div>
+            <!-- Frizz Risk Card (First) -->
+            <div class="card frizz-card" id="frizz-display">
+                <div class="frizz-risk risk-low">🌿 Low Frizz Risk (20%)</div>
+                <p id="frizz-message">Perfect weather for your hair! Great day for air drying.</p>
             </div>
 
-            <div class="card frizz-card" id="frizz-display">
-                <div class="frizz-risk risk-low">🌿 Low Frizz Risk</div>
-                <p id="frizz-message">Perfect weather for your hair! Great day for air drying.</p>
-                <div class="frizz-breakdown" id="frizz-breakdown" style="display: none;">
-                    <h4>Contributing Factors:</h4>
-                    <div id="frizz-factors">
-                        <!-- Factors will be inserted here -->
+            <!-- First Row: Temperature and Humidity Split -->
+            <div class="split-cards-row">
+                <div class="half-card temp-card" id="temp-display">
+                    <h3>🌡️ Temperature</h3>
+                    <div class="temp-value" id="temp-value">--°F</div>
+                    <div class="temp-description">
+                        <div id="weather-condition">--</div>
+                        <div id="feels-like">Feels like --°F</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Humidity and Wind Split Row -->
-            <div class="split-cards-row">
                 <div class="half-card humidity-card">
                     <h3>💧 Humidity & Dew Point</h3>
                     <div class="humidity-value" id="humidity-value">--%</div>
@@ -663,7 +582,10 @@
                         Get weather data to see how moisture affects your hair!
                     </div>
                 </div>
+            </div>
 
+            <!-- Second Row: Wind and UV Split -->
+            <div class="split-cards-row">
                 <div class="half-card wind-card" id="wind-display" style="display: none;">
                     <div class="wind-header">
                         <h3>💨 Wind</h3>
@@ -672,16 +594,13 @@
                     <div class="wind-value" id="wind-value">-- mph</div>
                     <div class="wind-level" id="wind-level">--</div>
                     <div class="wind-impact">
-                        <h4>Hair Impact:</h4>
-                        <ul id="wind-tips">
-                            <!-- Wind tips will be inserted here -->
-                        </ul>
+                        <div class="wind-impact-title">Hair Impact:</div>
+                        <div class="wind-impact-text" id="wind-impact-text">
+                            <!-- Wind impact description will be inserted here -->
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- UV and Sunrise/Sunset Split Row -->
-            <div class="split-cards-row">
                 <div class="half-card uv-card" id="uv-display" style="display: none;">
                     <div class="uv-header">
                         <h3 style="color: white; margin: 0;">☀️ UV Index</h3>
@@ -693,26 +612,9 @@
                         Get weather data to see UV effects.
                     </div>
                 </div>
-
-                <div class="half-card sun-card" id="sun-display" style="display: none;">
-                    <h3>☀️ Sun Times</h3>
-                    <div class="sun-times">
-                        <div class="sun-time">
-                            <div class="sun-time-label">Sunrise</div>
-                            <div class="sun-time-value" id="sunrise-time">--:--</div>
-                        </div>
-                        <div class="sun-time">
-                            <div class="sun-time-label">Sunset</div>
-                            <div class="sun-time-value" id="sunset-time">--:--</div>
-                        </div>
-                    </div>
-                    <div class="daylight-info">
-                        <div id="daylight-duration">-- hours daylight</div>
-                        <div class="peak-uv" id="peak-uv">Peak UV: --</div>
-                    </div>
-                </div>
             </div>
 
+            <!-- Hair Strategy Card (Last) -->
             <div class="card tips-card">
                 <div class="tips-header" id="tips-header">
                     <h3>💡 Hair Strategy</h3>
@@ -782,7 +684,6 @@
         let forecastData = null;
         let currentUVData = null;
         let currentWindData = null;
-        let currentSunData = null;
         let currentDay = 0;
         let hairProfile = {
             curlType: '3B',
@@ -820,11 +721,36 @@
             return { level: 'Very Windy', impact: 'extreme' };
         }
 
-        // Wind recommendations
+        // Wind impact description
+        function getWindImpact(windSpeed, hairType) {
+            const level = getWindLevel(windSpeed).impact;
+            const impacts = {
+                low: "Minimal impact. Your hair will maintain its style easily today.",
+                moderate: "Moderate tangling risk. Hair may lose some definition and become slightly frizzy.",
+                high: "High tangling and frizz risk. Curls will likely separate and lose their pattern.",
+                extreme: "Extreme disruption. Hair will tangle severely and lose all styling."
+            };
+            
+            // Add hair-type specific notes
+            let impact = impacts[level];
+            if (hairType && (hairType.startsWith('1') || hairType.startsWith('2A'))) {
+                if (level !== 'low') {
+                    impact += " Fine hair will be especially prone to tangling.";
+                }
+            } else if (hairType && hairType.startsWith('4')) {
+                if (level === 'high' || level === 'extreme') {
+                    impact += " Protective styles strongly recommended.";
+                }
+            }
+            
+            return impact;
+        }
+
+        // Wind recommendations for Hair Strategy
         function getWindRecommendations(windSpeed, hairType) {
             const level = getWindLevel(windSpeed);
             const recommendations = {
-                low: ["No wind concerns today", "Regular styling routine works"],
+                low: [],
                 moderate: ["Use light hold products", "Avoid touching hair", "Consider a loose bun"],
                 high: ["Protective styles recommended", "Use anti-frizz serum", "Secure loose strands"],
                 extreme: ["Buns or braids essential", "Heavy hold products", "Avoid outdoor styling"]
@@ -887,29 +813,6 @@
             return recommendations.extreme;
         }
 
-        // Format time from Unix timestamp
-        function formatTime(timestamp) {
-            const date = new Date(timestamp * 1000);
-            return date.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            });
-        }
-
-        // Calculate daylight duration
-        function calculateDaylight(sunrise, sunset) {
-            const duration = sunset - sunrise;
-            const hours = Math.floor(duration / 3600);
-            const minutes = Math.floor((duration % 3600) / 60);
-            return `${hours}h ${minutes}min daylight`;
-        }
-
-        // Get peak UV hours
-        function getPeakUVHours() {
-            return "11 AM - 3 PM";
-        }
-
         function processForecastData(forecastRaw) {
             console.log('Processing forecast data...');
             const dailyData = {};
@@ -924,9 +827,7 @@
                         windDirs: [],
                         conditions: [],
                         dt: item.dt,
-                        weather: item.weather[0],
-                        // Store first morning time for sunrise/sunset calculation
-                        morningTime: item.dt
+                        weather: item.weather[0]
                     };
                 }
                 
@@ -948,10 +849,7 @@
                     condition: day.weather.main,
                     description: day.weather.description,
                     icon: day.weather.icon,
-                    dayName: index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : 'Day 3',
-                    // Estimate sunrise/sunset for future days (add 1 day in seconds)
-                    estimatedSunrise: currentSunData ? currentSunData.sunrise + (index * 86400) : null,
-                    estimatedSunset: currentSunData ? currentSunData.sunset + (index * 86400) : null
+                    dayName: index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : 'Day 3'
                 };
             });
             
@@ -1025,8 +923,7 @@
                         condition: currentWeatherData.weather[0].main,
                         description: currentWeatherData.weather[0].description,
                         uvIndex: currentUVData ? currentUVData : 0,
-                        sunrise: currentSunData ? currentSunData.sunrise : null,
-                        sunset: currentSunData ? currentSunData.sunset : null
+                        feels_like: Math.round(currentWeatherData.main.feels_like)
                     } : 
                     forecastData && forecastData[currentDay] ? forecastData[currentDay] : null;
                 
@@ -1198,7 +1095,6 @@
             // Enhanced frizz risk calculation with all factors
             getFrizzRisk: function(humidity, dewPoint, hairType, uvIndex, windSpeed) {
                 let risk = 0;
-                let factors = {};
                 
                 // Humidity/Dew Point impact (40% combined weight)
                 let moistureScore = 0;
@@ -1215,11 +1111,6 @@
                 else if (dewPointF > 50) moistureScore += 3;
                 
                 risk += moistureScore;
-                factors.humidity = {
-                    score: Math.round(moistureScore),
-                    value: humidity,
-                    level: humidity > 70 ? 'Very High' : humidity > 50 ? 'Moderate' : 'Low'
-                };
                 
                 // Wind impact (25% weight)
                 let windScore = 0;
@@ -1235,11 +1126,6 @@
                     }
                 }
                 risk += windScore;
-                factors.wind = {
-                    score: Math.round(windScore),
-                    value: Math.round(windSpeed || 0),
-                    level: getWindLevel(windSpeed || 0).level
-                };
                 
                 // UV impact (20% weight)
                 let uvScore = 0;
@@ -1250,20 +1136,10 @@
                     else if (uvIndex > 3) uvScore = 2;
                 }
                 risk += uvScore;
-                factors.uv = {
-                    score: Math.round(uvScore),
-                    value: Math.round(uvIndex || 0),
-                    level: uvIndex ? getUVLevel(uvIndex).level : 'None'
-                };
                 
                 // Temperature impact (15% weight)
                 let tempScore = 3; // Default moderate impact
                 risk += tempScore;
-                factors.temp = {
-                    score: tempScore,
-                    value: 'Moderate',
-                    level: 'Normal'
-                };
                 
                 // Hair type multiplier
                 const typeMultipliers = {
@@ -1282,8 +1158,7 @@
                 
                 return {
                     ...riskLevel,
-                    totalRisk: Math.min(Math.round(finalRisk), 100),
-                    factors: factors
+                    totalRisk: Math.min(Math.round(finalRisk), 100)
                 };
             }
         };
@@ -1353,12 +1228,6 @@
                     deg: currentWeatherData.wind.deg || 0
                 };
                 
-                // Extract sun data
-                currentSunData = {
-                    sunrise: currentWeatherData.sys.sunrise,
-                    sunset: currentWeatherData.sys.sunset
-                };
-                
                 // Get UV data if available
                 if (uvResponse.ok) {
                     const uvData = await uvResponse.json();
@@ -1383,9 +1252,7 @@
                     condition: currentWeatherData.weather[0].main,
                     description: currentWeatherData.weather[0].description,
                     feels_like: Math.round(currentWeatherData.main.feels_like),
-                    uvIndex: currentUVData,
-                    sunrise: currentSunData.sunrise,
-                    sunset: currentSunData.sunset
+                    uvIndex: currentUVData
                 };
                 
                 updateDayDisplay(dayData);
@@ -1401,25 +1268,20 @@
         function updateDayDisplay(weatherData) {
             console.log('Updating display with:', weatherData);
             
-            // Update weather card
-            const tempEl = document.querySelector('.temperature');
-            if (tempEl) {
-                tempEl.textContent = `${weatherData.temp}°F`;
+            // Update temperature card
+            const tempValue = document.getElementById('temp-value');
+            if (tempValue) {
+                tempValue.textContent = `${weatherData.temp}°F`;
             }
             
-            const descEl = document.querySelector('.description');
-            if (descEl) {
-                descEl.textContent = weatherData.description.charAt(0).toUpperCase() + weatherData.description.slice(1);
+            const weatherCondition = document.getElementById('weather-condition');
+            if (weatherCondition) {
+                weatherCondition.textContent = weatherData.description.charAt(0).toUpperCase() + weatherData.description.slice(1);
             }
             
-            const feelsEl = document.querySelector('.feels-like');
-            if (feelsEl && weatherData.feels_like) {
-                feelsEl.textContent = `Feels like ${weatherData.feels_like}°F`;
-            }
-            
-            const iconEl = document.querySelector('.weather-icon');
-            if (iconEl) {
-                iconEl.textContent = getWeatherIcon(weatherData.condition);
+            const feelsLike = document.getElementById('feels-like');
+            if (feelsLike && weatherData.feels_like) {
+                feelsLike.textContent = `Feels like ${weatherData.feels_like}°F`;
             }
 
             // Update humidity card
@@ -1455,10 +1317,9 @@
                     const windLevel = document.getElementById('wind-level');
                     if (windLevel) windLevel.textContent = getWindLevel(weatherData.windSpeed).level;
                     
-                    const windTips = document.getElementById('wind-tips');
-                    if (windTips) {
-                        const recommendations = getWindRecommendations(weatherData.windSpeed, hairProfile.curlType);
-                        windTips.innerHTML = recommendations.map(rec => `<li>${rec}</li>`).join('');
+                    const windImpactText = document.getElementById('wind-impact-text');
+                    if (windImpactText) {
+                        windImpactText.textContent = getWindImpact(weatherData.windSpeed, hairProfile.curlType);
                     }
                 }
             }
@@ -1497,31 +1358,7 @@
                 }
             }
 
-            // Update sunrise/sunset card
-            if (weatherData.sunrise && weatherData.sunset) {
-                const sunCard = document.getElementById('sun-display');
-                if (sunCard) {
-                    sunCard.style.display = 'block';
-                    
-                    const sunriseTime = document.getElementById('sunrise-time');
-                    if (sunriseTime) sunriseTime.textContent = formatTime(weatherData.sunrise);
-                    
-                    const sunsetTime = document.getElementById('sunset-time');
-                    if (sunsetTime) sunsetTime.textContent = formatTime(weatherData.sunset);
-                    
-                    const daylightDuration = document.getElementById('daylight-duration');
-                    if (daylightDuration) {
-                        daylightDuration.textContent = calculateDaylight(weatherData.sunrise, weatherData.sunset);
-                    }
-                    
-                    const peakUV = document.getElementById('peak-uv');
-                    if (peakUV) {
-                        peakUV.textContent = `Peak UV: ${getPeakUVHours()}`;
-                    }
-                }
-            }
-
-            // Update frizz risk with breakdown
+            // Update frizz risk (simplified without breakdown)
             const frizzRisk = FrizzballKnowledge.getFrizzRisk(
                 weatherData.humidity, 
                 dewPoint, 
@@ -1545,31 +1382,6 @@
                 } else {
                     frizzMessage.textContent = 'High frizz potential. Use anti-frizz products and protective styles.';
                 }
-            }
-            
-            // Show breakdown if there's risk
-            const breakdownDiv = document.getElementById('frizz-breakdown');
-            const factorsDiv = document.getElementById('frizz-factors');
-            if (breakdownDiv && factorsDiv && frizzRisk.factors) {
-                breakdownDiv.style.display = 'block';
-                factorsDiv.innerHTML = `
-                    <div class="frizz-factor">
-                        <span class="frizz-factor-label">💧 Humidity:</span>
-                        <span class="frizz-factor-value">+${frizzRisk.factors.humidity.score}% (${frizzRisk.factors.humidity.level} - ${frizzRisk.factors.humidity.value}%)</span>
-                    </div>
-                    <div class="frizz-factor">
-                        <span class="frizz-factor-label">💨 Wind:</span>
-                        <span class="frizz-factor-value">+${frizzRisk.factors.wind.score}% (${frizzRisk.factors.wind.level} - ${frizzRisk.factors.wind.value} mph)</span>
-                    </div>
-                    <div class="frizz-factor">
-                        <span class="frizz-factor-label">☀️ UV:</span>
-                        <span class="frizz-factor-value">+${frizzRisk.factors.uv.score}% (${frizzRisk.factors.uv.level} - UV ${frizzRisk.factors.uv.value})</span>
-                    </div>
-                    <div class="frizz-factor">
-                        <span class="frizz-factor-label">🌡️ Temperature:</span>
-                        <span class="frizz-factor-value">+${frizzRisk.factors.temp.score}% (${frizzRisk.factors.temp.level})</span>
-                    </div>
-                `;
             }
 
             // Update tips with all factors
@@ -1674,16 +1486,12 @@
                     condition: currentWeatherData.weather[0].main,
                     description: currentWeatherData.weather[0].description,
                     feels_like: Math.round(currentWeatherData.main.feels_like),
-                    uvIndex: currentUVData || 0,
-                    sunrise: currentSunData ? currentSunData.sunrise : null,
-                    sunset: currentSunData ? currentSunData.sunset : null
+                    uvIndex: currentUVData || 0
                 };
             } else if (forecastData && forecastData[dayIndex]) {
                 dayData = {
                     ...forecastData[dayIndex],
-                    uvIndex: 0,  // UV not available for future days
-                    sunrise: forecastData[dayIndex].estimatedSunrise,
-                    sunset: forecastData[dayIndex].estimatedSunset
+                    uvIndex: 0  // UV not available for future days
                 };
             } else {
                 console.log('No data available for day', dayIndex);
