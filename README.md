@@ -38,8 +38,3 @@ Weighted algorithm considering:
 - **Wind Protection** - Protective style suggestions
 - **UV Protection** - Sun damage prevention tips
 
-## Setup
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/frizzball.git
