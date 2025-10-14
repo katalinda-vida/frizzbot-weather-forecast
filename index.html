@@ -689,6 +689,9 @@
             curlType: '3B',
             porosity: 'medium'
         };
+        // Cache for weather data
+        let weatherCache = {};
+        const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
         // UTILITY FUNCTIONS
         function getWeatherIcon(condition) {
@@ -1204,28 +1207,109 @@
                 alert('Error finding location: ' + error.message);
             }
         }
+async function getWeatherByCoords(lat, lon) {
+    try {
+        const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+        const now = Date.now();
+        
+        // Check cache first
+        if (weatherCache[cacheKey] && (now - weatherCache[cacheKey].timestamp < CACHE_DURATION)) {
+            console.log('✅ Using cached weather data (less than 10 minutes old)');
+            currentWeatherData = weatherCache[cacheKey].current;
+            currentWindData = weatherCache[cacheKey].wind;
+            currentUVData = weatherCache[cacheKey].uv;
+            forecastData = weatherCache[cacheKey].forecast;
+            
+            updateDayButtonLabels();
+            
+            const dayData = {
+                temp: Math.round(currentWeatherData.main.temp),
+                humidity: currentWeatherData.main.humidity,
+                windSpeed: currentWindData.speed,
+                windDir: currentWindData.deg,
+                condition: currentWeatherData.weather[0].main,
+                description: currentWeatherData.weather[0].description,
+                feels_like: Math.round(currentWeatherData.main.feels_like),
+                uvIndex: currentUVData
+            };
+            
+            updateDayDisplay(dayData);
+            return;
+        }
+        
+        console.log('Fetching fresh weather data for coordinates:', lat, lon);
+        
+        const [currentResponse, forecastResponse, uvResponse] = await Promise.all([
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
+            fetch(`https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608`)
+        ]);
+        
+        // Check for rate limit errors
+        if (currentResponse.status === 429 || forecastResponse.status === 429) {
+            alert('⚠️ Too many weather requests! Please wait a minute and try again.\n\nTip: Weather data is cached for 10 minutes, so you can switch between days without new requests.');
+            return;
+        }
+        
+        if (!currentResponse.ok || !forecastResponse.ok) {
+            throw new Error(`Weather API error: ${currentResponse.status} / ${forecastResponse.status}`);
+        }
 
-        async function getWeatherByCoords(lat, lon) {
-            try {
-                console.log('Getting weather for coordinates:', lat, lon);
-                
-                const [currentResponse, forecastResponse, uvResponse] = await Promise.all([
-                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
-                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
-                    fetch(`https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608`)
-                ]);
-                
-                if (!currentResponse.ok || !forecastResponse.ok) {
-                    throw new Error(`Weather API error: ${currentResponse.status} / ${forecastResponse.status}`);
-                }
-
-                currentWeatherData = await currentResponse.json();
-                const forecastRaw = await forecastResponse.json();
-                
-                // Extract wind data
-                currentWindData = {
-                    speed: currentWeatherData.wind.speed,
-                    deg: currentWeatherData.wind.deg || 0
+        currentWeatherData = await currentResponse.json();
+        const forecastRaw = await forecastResponse.json();
+        
+        // Extract wind data
+        currentWindData = {
+            speed: currentWeatherData.wind.speed,
+            deg: currentWeatherData.wind.deg || 0
+        };
+        
+        // Get UV data if available
+        if (uvResponse.ok) {
+            const uvData = await uvResponse.json();
+            currentUVData = uvData.value || 0;
+            console.log('UV Index:', currentUVData);
+        } else {
+            currentUVData = 0;
+        }
+        
+        console.log('✅ WEATHER DATA RECEIVED:', currentWeatherData);
+        
+        forecastData = processForecastData(forecastRaw);
+        console.log('✅ FORECAST DATA PROCESSED:', forecastData);
+        
+        // Cache the results
+        weatherCache[cacheKey] = {
+            timestamp: now,
+            current: currentWeatherData,
+            wind: currentWindData,
+            uv: currentUVData,
+            forecast: forecastData
+        };
+        console.log('💾 Weather data cached for 10 minutes');
+        
+        updateDayButtonLabels();
+        
+        const dayData = {
+            temp: Math.round(currentWeatherData.main.temp),
+            humidity: currentWeatherData.main.humidity,
+            windSpeed: currentWindData.speed,
+            windDir: currentWindData.deg,
+            condition: currentWeatherData.weather[0].main,
+            description: currentWeatherData.weather[0].description,
+            feels_like: Math.round(currentWeatherData.main.feels_like),
+            uvIndex: currentUVData
+        };
+        
+        updateDayDisplay(dayData);
+        
+        console.log('⭐ WEATHER UPDATE COMPLETE');
+        
+    } catch (error) {
+        console.error('Weather error details:', error);
+        alert('Error getting weather data: ' + error.message);
+    }
+}
                 };
                 
                 // Get UV data if available
