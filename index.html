@@ -1,495 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frizzball - Smart Weather Forecast for All Hair Types</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .header-left h1 {
-            font-size: 2.8em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header-left p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .hair-avatar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 12px 18px;
-            border-radius: 40px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .hair-avatar:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-        }
-
-        .avatar-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .avatar-text .name {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .avatar-text .type {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .day-switcher {
-            display: flex;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 5px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .day-button {
-            flex: 1;
-            padding: 12px 15px;
-            background: transparent;
-            border: none;
-            color: #666;
-            font-size: 14px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .day-button.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: bold;
-        }
-
-        .weather-cards {
-            display: grid;
-            gap: 15px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        .split-cards-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .half-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
-        }
-
-        .half-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .temp-card {
-            text-align: center;
-            background: linear-gradient(135deg, #FFF9C4, #FFEB3B);
-        }
-
-        .temp-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #F57C00;
-            margin: 10px 0;
-        }
-
-        .temp-description {
-            font-size: 1em;
-            color: #666;
-        }
-
-        .frizz-card {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .frizz-risk {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding: 10px 20px;
-            border-radius: 25px;
-        }
-
-        .risk-low {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .risk-moderate {
-            background: linear-gradient(135deg, #FF9800, #F57C00);
-            color: white;
-        }
-
-        .risk-high {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-        }
-
-        .humidity-card h3 {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .humidity-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .humidity-detail {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-
-        .wind-card {
-            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-        }
-
-        .wind-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .wind-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #1976D2;
-            margin-bottom: 5px;
-        }
-
-        .wind-level {
-            font-size: 1em;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .wind-direction {
-            display: inline-block;
-            background: rgba(25, 118, 210, 0.1);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.9em;
-        }
-
-        .wind-impact {
-            background: rgba(255,255,255,0.5);
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-
-        .wind-impact-title {
-            font-size: 0.95em;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #1976D2;
-        }
-
-        .wind-impact-text {
-            color: #333;
-        }
-
-        .uv-card {
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .uv-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .uv-value {
-            font-size: 2em;
-            font-weight: bold;
-        }
-        
-        .uv-label {
-            font-size: 1em;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .uv-description {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px;
-            border-radius: 10px;
-            font-size: 0.85em;
-            line-height: 1.3;
-        }
-
-        .tips-card {
-            position: relative;
-        }
-
-        .tips-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-
-        .expand-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
-        .tips-content {
-            display: none !important;
-        }
-
-        .tips-content.expanded {
-            display: block !important;
-            animation: expandDown 0.3s ease;
-        }
-
-        @keyframes expandDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .tip-section {
-            margin-bottom: 15px;
-        }
-
-        .tip-section h4 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-
-        .tip-section p {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 5px;
-        }
-
-        .location-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .location-input input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-
-        .location-input input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .location-input button {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.3s ease;
-        }
-
-        .location-input button:hover {
-            transform: translateY(-2px);
-        }
-
-        .hair-profile-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .quiz-question {
-            margin-bottom: 20px;
-        }
-
-        .quiz-question h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .quiz-options {
-            display: grid;
-            gap: 8px;
-        }
-
-        .quiz-option {
-            padding: 12px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .quiz-option:hover {
-            background: #e8e8e8;
-        }
-
-        .quiz-option.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .header-left h1 {
-                font-size: 2.2em;
-            }
-
-            .location-input {
-                flex-direction: column;
-            }
-            
-            .split-cards-row {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            
-            .half-card {
-                padding: 12px;
-            }
-            
-            .wind-value, .humidity-value, .uv-value, .temp-value {
-                font-size: 1.5em;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -1063,6 +571,7 @@
                 const cacheKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
                 const now = Date.now();
                 
+                // Check cache first
                 if (weatherCache[cacheKey] && (now - weatherCache[cacheKey].timestamp < CACHE_DURATION)) {
                     console.log('✅ Using cached weather data');
                     currentWeatherData = weatherCache[cacheKey].current;
@@ -1085,37 +594,70 @@
                     return;
                 }
                 
-                console.log('Fetching fresh weather data...');
+                console.log('Fetching fresh weather data with SINGLE API call...');
                 
-                const [currentResponse, forecastResponse, uvResponse] = await Promise.all([
-                    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
-                    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`),
-                    fetch(`https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608`)
-                ]);
+                // SINGLE API CALL - Just the forecast endpoint
+                const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=imperial`);
                 
-                if (currentResponse.status === 429 || forecastResponse.status === 429) {
-                    alert('⚠️ Too many requests! Please wait a minute.\n\nTip: Weather data is cached for 10 minutes.');
+                // Handle rate limiting
+                if (forecastResponse.status === 429) {
+                    // Check if we have ANY cached data for this location (even if expired)
+                    if (weatherCache[cacheKey]) {
+                        console.log('⚠️ Rate limited - using expired cache');
+                        currentWeatherData = weatherCache[cacheKey].current;
+                        currentWindData = weatherCache[cacheKey].wind;
+                        currentUVData = weatherCache[cacheKey].uv;
+                        forecastData = weatherCache[cacheKey].forecast;
+                        
+                        // Extend cache timestamp
+                        weatherCache[cacheKey].timestamp = now;
+                        
+                        updateDayButtonLabels();
+                        updateDayDisplay({
+                            temp: Math.round(currentWeatherData.main.temp),
+                            humidity: currentWeatherData.main.humidity,
+                            windSpeed: currentWindData.speed,
+                            windDir: currentWindData.deg,
+                            condition: currentWeatherData.weather[0].main,
+                            description: currentWeatherData.weather[0].description,
+                            feels_like: Math.round(currentWeatherData.main.feels_like),
+                            uvIndex: currentUVData
+                        });
+                        
+                        alert('⚠️ API rate limit reached. Showing cached data.\n\nTip: We now use only 1 API call per request (down from 3)!');
+                        return;
+                    }
+                    
+                    alert('⚠️ API limit reached.\n\nGood news: We reduced API calls from 3 to 1 per request!\nYour limit resets at midnight UTC.');
                     return;
                 }
                 
-                if (!currentResponse.ok || !forecastResponse.ok) {
-                    throw new Error(`API error: ${currentResponse.status}`);
+                if (!forecastResponse.ok) {
+                    throw new Error(`API error: ${forecastResponse.status}`);
                 }
 
-                currentWeatherData = await currentResponse.json();
                 const forecastRaw = await forecastResponse.json();
                 
-                currentWindData = {
-                    speed: currentWeatherData.wind.speed,
-                    deg: currentWeatherData.wind.deg || 0
+                // Extract current weather from the first forecast entry
+                const firstEntry = forecastRaw.list[0];
+                currentWeatherData = {
+                    main: {
+                        temp: firstEntry.main.temp,
+                        feels_like: firstEntry.main.feels_like,
+                        humidity: firstEntry.main.humidity
+                    },
+                    weather: [firstEntry.weather[0]],
+                    wind: firstEntry.wind
                 };
                 
-                if (uvResponse.ok) {
-                    const uvData = await uvResponse.json();
-                    currentUVData = uvData.value || 0;
-                } else {
-                    currentUVData = 0;
-                }
+                currentWindData = {
+                    speed: firstEntry.wind.speed,
+                    deg: firstEntry.wind.deg || 0
+                };
+                
+                // UV data not available in forecast API, set to 0
+                // This reduces API calls from 3 to 1
+                currentUVData = 0;
                 
                 forecastData = processForecastData(forecastRaw);
                 
@@ -1126,7 +668,7 @@
                     uv: currentUVData,
                     forecast: forecastData
                 };
-                console.log('💾 Data cached');
+                console.log('💾 Data cached (using 1 API call instead of 3!)');
                 
                 updateDayButtonLabels();
                 
@@ -1143,7 +685,7 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error getting weather: ' + error.message);
+                alert('Error getting weather data: ' + error.message + '\n\nPlease try again in a few moments.');
             }
         }
 
